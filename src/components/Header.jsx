@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom';
 import About from './About/About';
+import CheckIn from './CheckIn/CheckIn';
 import theme from '../theme';
 
 import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
@@ -18,7 +19,6 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import StarIcon from '@material-ui/icons/Star';
 import StoreIcon from '@material-ui/icons/Store';
-import RoomIcon from '@material-ui/icons/Room';
 
 const useStyles = makeStyles({
   list: {
@@ -49,16 +49,12 @@ const Header = () => {
     >
       <List>
         <ListItem button component={Link} to="/">
+          <ListItemIcon><StarIcon /></ListItemIcon>
+          <ListItemText primary="Home" />
+        </ListItem>
+        <ListItem button component={Link} to="/findStore">
           <ListItemIcon><StoreIcon /></ListItemIcon>
           <ListItemText primary="Find a store" />
-        </ListItem>
-        <ListItem button component={Link} to="/check-in">
-          <ListItemIcon><RoomIcon /></ListItemIcon>
-          <ListItemText primary="Check in" />
-        </ListItem>
-        <ListItem button component={Link} to="/card-collection">
-          <ListItemIcon><StarIcon /></ListItemIcon>
-          <ListItemText primary="Card Collection" />
         </ListItem>
       </List>
       <Divider />
@@ -89,6 +85,8 @@ const Header = () => {
       </AppBar>
       <main>
         <Switch>
+          <Route exact path="/" render={() => <CheckIn />} />
+          {/* <Route exact path="/findStore" render={() => <FindStore />} /> */}
           <Route exact path="/about" render={() => <About />} />
         </Switch>
       </main>
