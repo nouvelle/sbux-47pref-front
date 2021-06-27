@@ -38,16 +38,16 @@ const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
 const InputDialog = (props) => {
   const [prefList, setPrefList] = useState([]);
   const [selectedPref, setSelectedPref] = useState(null);
-  const [author, setAuthor] = useState("");
-  const [secretkey, setSecretkey] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [inputText, setInputText] = useState("");
   const [formData, setFormData] = useState();
   const [imgSrc, setImgSrc] = useState("");
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
-  const inputRef = useRef();
+  const inputImgRef = useRef();
+  const inputAuthorRef = useRef();
+  const inputSecretkeyRef = useRef();
+  const inputTwitterRef = useRef();
+  const inputCommentRef = useRef();
   const classes = useStyles();
 
   useEffect(() => {
@@ -62,30 +62,10 @@ const InputDialog = (props) => {
     setSelectedPref(prefList[prefId]);
   };
   
-  // ニックネーム追加
-  const handleNameChange = (e) => {
-    setAuthor(e.target.value);
-  };
-  
-  // シークレットキー追加
-  const handleSecretkeyChange = (e) => {
-    setSecretkey(e.target.value);
-  };
-  
-  // Twitterハンドル名追加
-  const handleTwitterChange = (e) => {
-    setTwitter(e.target.value);
-  };
-  
-  // コメント追加
-  const handleTextChange = (e) => {
-    setInputText(e.target.value);
-  };
-
   // 画像追加ボタンクリック時
   const handleClickUpload = () => {
     // 隠れたinput をクリックする
-    inputRef.current.click()
+    inputImgRef.current.click()
   }
 
   // 画像取り消しボタンクリック時
@@ -132,10 +112,6 @@ const InputDialog = (props) => {
   // ポップアップの [CANCEL] クリック時
   const handleCancel = () => {
     // state 初期化して、ポップアップをクローズ
-    setAuthor("");
-    setSecretkey("");
-    setTwitter("");
-    setInputText("");
     setImgSrc("");
     setFormData("");
     setImgName("");
@@ -147,6 +123,11 @@ const InputDialog = (props) => {
 
   // ポップアップの [保存] クリック時
   const handleClose = async () => {
+    const author = inputAuthorRef.current.value;
+    const secretkey = inputSecretkeyRef.current.value;
+    const twitter = inputTwitterRef.current.value;
+    const inputText = inputCommentRef.current.value;
+
     if (!selectedPref) return setErrMsg("都道府県を選択してね！");
     if (!author) return setErrMsg("ニックネームを入力してね！");
     if (!imgName) return setErrMsg("画像をアップロードしてね！");
@@ -251,33 +232,39 @@ const InputDialog = (props) => {
           <TextField
             margin="dense"
             id="comment"
-            label="ニックネーム"
+            label="ニックネーム (10文字まで)"
             type="text"
-            onChange={handleNameChange}
+            inputRef={inputAuthorRef}
+            inputProps={{ maxLength: 10 }}
             fullWidth
           />
           <TextField
             margin="dense"
             id="comment"
-            label="シークレットキー (任意)"
+            label="シークレットキー (任意・10文字まで)"
             type="text"
-            onChange={handleSecretkeyChange}
+            inputRef={inputSecretkeyRef}
+            inputProps={{ maxLength: 10 }}
             fullWidth
           />
+          <Typography variant="caption" color="textSecondary">※ 画像を削除時に使用します</Typography>
           <TextField
             margin="dense"
             id="comment"
             label="Twitterハンドル名 (任意)"
             type="text"
-            onChange={handleTwitterChange}
+            inputRef={inputTwitterRef}
+            inputProps={{ maxLength: 15 }}
             fullWidth
           />
+          <Typography variant="caption" color="textSecondary">※ 入力いただければ Twitterページへのリンクを追加します</Typography>
           <TextField
             margin="dense"
             id="comment"
-            label="コメント (任意)"
+            label="コメント (任意・100文字まで)"
             type="text"
-            onChange={handleTextChange}
+            inputRef={inputCommentRef}
+            inputProps={{ maxLength: 100 }}
             fullWidth
           />
           <Button
@@ -296,7 +283,7 @@ const InputDialog = (props) => {
           >画像取消</Button>
           <input
             type="file"
-            ref={inputRef}
+            ref={inputImgRef}
             onChange={handleChange}
             style={{ display: 'none' }}
             accept="image/*"

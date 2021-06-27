@@ -16,8 +16,8 @@ const useStyles = makeStyles(() => ({
   },
   container: {
     height: '90vh',
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
     backgroundImage: 'url("/img/store04.jpg")',
     backgroundSize: 'contain',
     backgroundRepeat: 'no-repeat'

@@ -8,6 +8,11 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
+import Link from '@material-ui/core/Link';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import CardActions from '@material-ui/core/CardActions';
+import IconButton from '@material-ui/core/IconButton';
+import ShareIcon from '@material-ui/icons/Share';
 import moment from 'moment';
 
 import InputDialogCheckIn from './InputDialogCheckIn';
@@ -20,25 +25,22 @@ const useStyles = makeStyles(() => ({
     [theme.breakpoints.up('xs')]: {
       width: "100%",
       display: "flex",
+      flexDirection: "column",
       margin: 10
     },
     [theme.breakpoints.up('sm')]: {
       width: "31%",
       display: "flex",
+      flexDirection: "column",
       margin: "1%"
     },
   },
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto'
-  },
   container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
   media: {
-    height: 200,
+    height: 300,
   },
 }));
 
@@ -99,29 +101,37 @@ const CheckIn = () => {
           {PostData.length > 0
             ? PostData.map((post, id) => {
               return (
-                <Card key={id} className={classes.root} onClick={(e) => handleClickCard(e, post)}>
+                <Card key={id} className={classes.root}>
                   <CardActionArea>
                     {imgFromS3 && imgFromS3[id]
                       ? (<CardMedia
                           className={classes.media}
                           image={`data:img/jpg;base64,${imgFromS3[id]}`}
                           title={post["image"]}
+                          onClick={(e) => handleClickCard(e, post)}
                         />)
                       : <></>
                     }
+                    </CardActionArea>
                     <CardContent>
-                      <Typography variant="caption" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')}</Typography>
-                      <Typography gutterBottom variant="body2" component="div">{post.author}</Typography>
+                      <Typography variant="caption" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {post.author}</Typography>
                       {post.comments
-                        ? <Typography variant="body2" component="div">{post.comments}</Typography>
-                        : <></>
-                      }
-                      {post.snshandle
-                        ? <Typography variant="caption" color="textSecondary" component="div">@{post.snshandle}</Typography>
+                        ? <Typography style={{ wordWrap: 'break-word' }} variant="body2">{post.comments}</Typography>
                         : <></>
                       }
                     </CardContent>
-                  </CardActionArea>
+                    <CardActions disableSpacing>
+                      <IconButton aria-label="share">
+                        <Link href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></Link>
+                      </IconButton>
+                      {post.snshandle
+                        ? <IconButton aria-label="twitter">
+                            <Link href={"https://twitter.com/" + post.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></Link>
+                          </IconButton>
+                        : <></>
+                      }
+                    </CardActions>
+                  
                 </Card>
               )
             }) : <></>

@@ -8,7 +8,7 @@ const Footer = () => {
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="./">
-        SBUX information for you
+        SBUX 47 pref for you
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
