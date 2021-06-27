@@ -12,6 +12,7 @@ import ShareIcon from '@material-ui/icons/Share';
 import moment from 'moment';
 
 import theme from '../../theme';
+import config from '../../config';
 import '../../index.css'
 
 import ConfirmDialogCheckIn from '../CheckIn/ConfirmDialogCheckIn';
@@ -60,8 +61,9 @@ const Post = () => {
   const { id } = useParams();
 
   useEffect(() => {
+    const host = config[process.env.NODE_ENV].host;
     // 指定された投稿データを取得する
-    const getPostUrl = "/posts";
+    const getPostUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
     const url = `${getPostUrl}/${id}`;
     return fetch(url)
       .then(res => res.json())
@@ -72,7 +74,8 @@ const Post = () => {
       .then(data => {
         if (data.image) {
           // 指定された画像を取得する
-          fetch(`/image/${data.image}`)
+          const getImageUrl = (process.env.NODE_ENV === "production") ? `${host}/image/${data.image}` : `/image/${data.image}`;
+          fetch(getImageUrl)
             .then(res => res.json())
             .then(img => setImgFromS3(img.data))
             .catch(err => console.log(err))

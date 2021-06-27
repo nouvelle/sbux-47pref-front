@@ -6,6 +6,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import config from '../../config';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -28,8 +29,9 @@ const ConfirmDialogCheckIn= withRouter((props) => {
 
   // ポップアップの [削除] クリック時
   const handleDelete = async () => {
+    const host = config[process.env.NODE_ENV].host;
     // 選択された画像をS3から削除
-    const deleteUrlS3 = "/image";
+    const deleteUrlS3 = (process.env.NODE_ENV === "production") ? host + "/image" : "/image";
     await fetch(deleteUrlS3, {
       method: 'DELETE',
       mode: 'cors',
@@ -42,7 +44,7 @@ const ConfirmDialogCheckIn= withRouter((props) => {
     .catch(err => console.log("Error :", err))
 
     // 選択された投稿をDBから削除
-    const deleteUrlDB = `/posts/${props.postData.id}`;
+    const deleteUrlDB = (process.env.NODE_ENV === "production") ? `${host}/posts/${props.postData.id}` : `/posts/${props.postData.id}`;
     await fetch(deleteUrlDB, {
       method: 'DELETE',
       mode: 'cors',

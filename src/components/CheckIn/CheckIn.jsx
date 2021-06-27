@@ -17,6 +17,7 @@ import moment from 'moment';
 
 import InputDialogCheckIn from './InputDialogCheckIn';
 import theme from '../../theme';
+import config from '../../config';
 import '../../index.css'
 
 const useStyles = makeStyles(() => ({
@@ -46,10 +47,11 @@ const CheckIn = () => {
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const classes = useStyles();
-
+  
   useEffect(() => {
     const getImgFromS3 = async () => {
-      const url = "/posts";
+      const host = config[process.env.NODE_ENV].host
+      const url = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       let info = [];
       await fetch(url)
         .then(res => res.json())
@@ -64,7 +66,7 @@ const CheckIn = () => {
         const base64Arr = await Promise.all(
           info.map((data) => {
             if(data.image) {
-              const url = `${getImgUrl}/${data.image}`;
+              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
               return fetch(url)
                 .then(res => res.json())
                 .then(img => img.data)

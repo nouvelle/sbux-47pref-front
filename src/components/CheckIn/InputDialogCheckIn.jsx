@@ -16,6 +16,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import config from '../../config';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -51,7 +52,8 @@ const InputDialog = (props) => {
   const classes = useStyles();
 
   useEffect(() => {
-    const prefDataUrl = "/pref";
+    const host = config[process.env.NODE_ENV].host;
+    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
     fetch(prefDataUrl).then(res => res.json())
       .then(data => setPrefList(data))
   }, []);
@@ -123,6 +125,7 @@ const InputDialog = (props) => {
 
   // ポップアップの [保存] クリック時
   const handleClose = async () => {
+    const host = config[process.env.NODE_ENV].host;
     const author = inputAuthorRef.current.value;
     const secretkey = inputSecretkeyRef.current.value;
     const twitter = inputTwitterRef.current.value;
@@ -139,10 +142,7 @@ const InputDialog = (props) => {
       const imgData = `${now}_${selectedPref["id"]}_${imgName}`;
 
       // S3へのアップロード
-      const url = `/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
-      console.log(url)
-      console.log("imgName", imgName)
-      console.log("formData", formData)
+      const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}` : `$/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
       await fetch(url, {
         method: 'POST',
         body: formData
@@ -151,7 +151,7 @@ const InputDialog = (props) => {
       .catch(err => console.log("Err ", err))
 
       // 訪問記録を POST
-      const postUrl = "/posts";
+      const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       await fetch(postUrl, {
         method: 'POST',
         mode: 'cors',
@@ -169,7 +169,7 @@ const InputDialog = (props) => {
       .catch(err => console.log("Error :", err))
       
       // 店舗情報を再度取得し、再描画
-      const getUrl = "/posts";
+      const getUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       let info = [];
       await fetch(getUrl)
         .then(res => res.json())
@@ -181,7 +181,7 @@ const InputDialog = (props) => {
         .catch(err => console.log("err :", err));
   
       // アップロード後、画像リストにある画像を再度S3から画像を取得
-      const getImgUrl = "/image/";
+      const getImgUrl = (process.env.NODE_ENV === "production") ? host + "/image/" : "/image/";
       if(info.length > 0){
         const base64Arr = await Promise.all(
           info.map((data) => {
