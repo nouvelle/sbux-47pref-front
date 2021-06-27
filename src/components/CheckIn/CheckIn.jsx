@@ -47,6 +47,7 @@ const CheckIn = () => {
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [slectedPost, setSlectedPost] = useState("")
   const classes = useStyles();
 
   useEffect(() => {
@@ -84,8 +85,8 @@ const CheckIn = () => {
     getImgFromS3();
   }, []);
 
-  const handleClickCard = () => {
-    console.log("click");
+  const handleClickCard = (e, post) => {
+    setSlectedPost(post)
     setIsConfirmOpen(true);
   }
 
@@ -97,9 +98,8 @@ const CheckIn = () => {
         <div className="wrapCard">
           {PostData.length > 0
             ? PostData.map((post, id) => {
-              console.log(post)
               return (
-                <Card key={id} className={classes.root} onClick={handleClickCard}>
+                <Card key={id} className={classes.root} onClick={(e) => handleClickCard(e, post)}>
                   <CardActionArea>
                     {imgFromS3 && imgFromS3[id]
                       ? (<CardMedia
@@ -137,6 +137,10 @@ const CheckIn = () => {
       <ConfirmDialogCheckIn 
         isConfirmOpen={isConfirmOpen}
         setIsConfirmOpen={setIsConfirmOpen}
+        setSlectedPost={setSlectedPost}
+        slectedPost={slectedPost}
+        setPostData={setPostData}
+        setImgFromS3={setImgFromS3}
       />
     </>
   );

@@ -112,7 +112,6 @@ const InputDialog = (props) => {
           // プレビュー用の画像を設定
           const imgSrc = createObjectURL(result);
           setImgSrc(imgSrc);
-          console.log("imgSrc", imgSrc)
       
           // 送信データの準備
           const formData = new FormData();
@@ -276,7 +275,7 @@ const InputDialog = (props) => {
           <TextField
             margin="dense"
             id="comment"
-            label="コメント"
+            label="コメント (任意)"
             type="text"
             onChange={handleTextChange}
             fullWidth
