@@ -16,7 +16,7 @@ const theme = createMuiTheme({
     },
   },
   typography: {
-    fontFamily: ['"M PLUS 1p"', 'sans-serif'].join(','),
+    fontFamily: ['"Yusei Magic"', '"M PLUS 1p"', 'sans-serif'].join(','),
   },
 });
 

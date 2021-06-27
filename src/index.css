@@ -1,6 +1,7 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Yusei Magic', sans-serif;
 }
 
 table tbody tr:hover {
@@ -30,13 +31,11 @@ table tbody tr:hover {
 }
 
 #headerMessage {
-  font-family: 'Amatic SC', cursive;
   font-size: 24px;
 }
 #checkInMessage,
 #cardCollectionMessage,
 #aboutMessage {
-  font-family: 'Amatic SC', cursive;
   font-size: 48px;
 }
 
@@ -49,4 +48,8 @@ table tbody tr:hover {
 
 #selectStoreWrap {
   display: flex;
+}
+
+#iconWrap .buttonItem:last-child{
+  margin-left: auto;
 }

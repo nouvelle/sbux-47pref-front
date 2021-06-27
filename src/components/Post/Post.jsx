@@ -1,0 +1,133 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import CardActions from '@material-ui/core/CardActions';
+import IconButton from '@material-ui/core/IconButton';
+import ShareIcon from '@material-ui/icons/Share';
+import moment from 'moment';
+
+import theme from '../../theme';
+import '../../index.css'
+
+import ConfirmDialogCheckIn from '../CheckIn/ConfirmDialogCheckIn';
+
+const useStyles = makeStyles(() => ({
+  root: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    margin: 10
+  },
+  container: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  comment: {
+    [theme.breakpoints.up('xs')]: {
+      width: "90%",
+    },
+    [theme.breakpoints.up('sm')]: {
+      width: "70%",
+    },
+    display: "block",
+    margin: "0 auto",
+    background: "white",
+    padding: 20,
+    boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+  },
+  media: {
+    display: "block",
+    width: "100%",
+    paddingBottom: 20,
+  },
+  deleteButton: {
+    width: 120,
+    background: "#e53935",
+    color: "#ffffff"
+  },
+}));
+
+const Post = () => {
+  const [postData, setPostData] = useState();
+  const [imgFromS3, setImgFromS3] = useState();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const classes = useStyles();
+  const { id } = useParams();
+
+  useEffect(() => {
+    // 指定された投稿データを取得する
+    const getPostUrl = "/posts";
+    const url = `${getPostUrl}/${id}`;
+    return fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setPostData(data)
+        return data
+      })
+      .then(data => {
+        if (data.image) {
+          // 指定された画像を取得する
+          fetch(`/image/${data.image}`)
+            .then(res => res.json())
+            .then(img => setImgFromS3(img.data))
+            .catch(err => console.log(err))
+        }
+      })
+      .catch(err => console.log(err))
+  }, [id]);
+  
+  // [削除] クリック時
+  const handleDelete = async () => {
+    console.log("DELETE", postData);
+    setIsConfirmOpen(true);
+  }
+
+  return (
+    <>
+      <Container maxWidth="lg" className={classes.container}>
+        {postData && imgFromS3
+            ? (<div className={classes.comment}>
+              <img
+                className={classes.media} 
+                src={`data:img/jpg;base64,${imgFromS3}`} 
+                alt="post" 
+              />
+              <Typography variant="h6" component="div">#{postData.id} {postData.pref.nameJP}</Typography>
+              <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
+              {postData.comments
+                ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
+                : <></>
+              }
+              <CardActions id="iconWrap">
+                <IconButton aria-label="share" className="buttonItem">
+                  <Link href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></Link>
+                </IconButton>
+                {postData.snshandle
+                  ? <IconButton aria-label="twitter" className="buttonItem">
+                      <Link href={"https://twitter.com/" + postData.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></Link>
+                    </IconButton>
+                  : <></>
+                }
+                <Button variant="contained" onClick={handleDelete} className={`buttonItem ${classes.deleteButton}`}>削除</Button>
+              </CardActions>
+            </div>)
+            : <></>
+          }
+      </Container>
+      <ConfirmDialogCheckIn 
+        isConfirmOpen={isConfirmOpen}
+        setIsConfirmOpen={setIsConfirmOpen}
+        setPostData={setPostData}
+        postData={postData}
+        setImgFromS3={setImgFromS3}
+      />
+    </>
+  );
+}
+
+export default Post;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom';
 import About from './About/About';
 import CheckIn from './CheckIn/CheckIn';
+import Post from './Post/Post';
 import theme from '../theme';
 
 import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
@@ -27,6 +28,10 @@ const useStyles = makeStyles({
   fullList: {
     width: 'auto',
   },
+  link: {
+    textDecoration: "none",
+    color: "#333",
+  }
 });
 
 const Header = () => {
@@ -79,14 +84,14 @@ const Header = () => {
             {list()}
           </Drawer>
           <Typography id="headerMessage" variant="h6" color="inherit">
-            Welcome to SBUX MAP!
+            <Link to="/" className={classes.link}>Welcome to SBUX MAP!</Link>
           </Typography>
         </Toolbar>
       </AppBar>
       <main>
         <Switch>
           <Route exact path="/" render={() => <CheckIn />} />
-          {/* <Route exact path="/findStore" render={() => <FindStore />} /> */}
+          <Route exact path="/post/:id" component={Post} />
           <Route exact path="/about" render={() => <About />} />
         </Switch>
       </main>
