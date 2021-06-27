@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
     minWidth: 120,
   },
+  errMsg: {
+    color: "#e53935",
+  },
 }));
 
 const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
@@ -35,11 +38,15 @@ const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
 const InputDialog = (props) => {
   const [prefList, setPrefList] = useState([]);
   const [selectedPref, setSelectedPref] = useState(null);
+  const [author, setAuthor] = useState("");
+  const [secretkey, setSecretkey] = useState("");
+  const [twitter, setTwitter] = useState("");
   const [inputText, setInputText] = useState("");
   const [formData, setFormData] = useState();
   const [imgSrc, setImgSrc] = useState("");
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
+  const [errMsg, setErrMsg] = useState("");
   const inputRef = useRef();
   const classes = useStyles();
 
@@ -53,6 +60,21 @@ const InputDialog = (props) => {
   const handlePrefChange = (pref) => {
     const prefId = pref.target.getAttribute("data-option-index");
     setSelectedPref(prefList[prefId]);
+  };
+  
+  // ニックネーム追加
+  const handleNameChange = (e) => {
+    setAuthor(e.target.value);
+  };
+  
+  // シークレットキー追加
+  const handleSecretkeyChange = (e) => {
+    setSecretkey(e.target.value);
+  };
+  
+  // Twitterハンドル名追加
+  const handleTwitterChange = (e) => {
+    setTwitter(e.target.value);
   };
   
   // コメント追加
@@ -111,17 +133,25 @@ const InputDialog = (props) => {
   // ポップアップの [CANCEL] クリック時
   const handleCancel = () => {
     // state 初期化して、ポップアップをクローズ
+    setAuthor("");
+    setSecretkey("");
+    setTwitter("");
     setInputText("");
     setImgSrc("");
     setFormData("");
     setImgName("");
     setNow(0);
+    setErrMsg("");
     setSelectedPref(null);
     props.setOpen(false);
   }
 
   // ポップアップの [保存] クリック時
   const handleClose = async () => {
+    if (!selectedPref) return setErrMsg("都道府県を選択してね！");
+    if (!author) return setErrMsg("ニックネームを入力してね！");
+    if (!imgName) return setErrMsg("画像をアップロードしてね！");
+    
     // 店舗情報が存在する場合のみ保存を行う
     if(selectedPref) {
       // 画像データが設定されている時だけアップロード
@@ -147,7 +177,9 @@ const InputDialog = (props) => {
         mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          "author": "Eriko",
+          "author": author,
+          "secretkey": secretkey,
+          "snshandle": twitter,
           "comments": inputText,
           "pref_id": selectedPref["id"],
           "image": imgData
@@ -206,13 +238,41 @@ const InputDialog = (props) => {
 
   return (
     <Dialog open={props.open}>
-      <DialogTitle id="alert-dialog-title">どのフラペチーノを飲んだ？</DialogTitle>
+      <DialogTitle id="alert-dialog-title">あなたが飲んだフラペチーノの写真をアップしてね 😋</DialogTitle>
       <DialogContent>
+        {errMsg
+          ? <Typography variant="subtitle1" className={classes.errMsg}>{errMsg}</Typography>
+          : <></>
+        }
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <div id="selectStoreWrap">
             {makePrefSelect()}
           </div>
           <Typography variant="subtitle1" color="primary">{selectedPref ? selectedPref.drink : ''}</Typography>
+          <TextField
+            margin="dense"
+            id="comment"
+            label="ニックネーム"
+            type="text"
+            onChange={handleNameChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            id="comment"
+            label="シークレットキー (任意)"
+            type="text"
+            onChange={handleSecretkeyChange}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            id="comment"
+            label="Twitterハンドル名 (任意)"
+            type="text"
+            onChange={handleTwitterChange}
+            fullWidth
+          />
           <TextField
             margin="dense"
             id="comment"

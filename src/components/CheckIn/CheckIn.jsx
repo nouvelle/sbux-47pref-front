@@ -17,10 +17,16 @@ import '../../index.css'
 
 const useStyles = makeStyles(() => ({
   root: {
-    minWidth: 250,
-    width: "30%",
-    display: "flex",
-    margin: 10
+    [theme.breakpoints.up('xs')]: {
+      width: "100%",
+      display: "flex",
+      margin: 10
+    },
+    [theme.breakpoints.up('sm')]: {
+      width: "31%",
+      display: "flex",
+      margin: "1%"
+    },
   },
   content: {
     flexGrow: 1,
@@ -104,10 +110,16 @@ const CheckIn = () => {
                       : <></>
                     }
                     <CardContent>
-                      <Typography variant="caption" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:MM')}</Typography>
+                      <Typography variant="caption" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')}</Typography>
                       <Typography gutterBottom variant="body2" component="div">{post.author}</Typography>
-                      <Typography variant="body2" component="div">{post.comments}</Typography>
-                      <Typography variant="caption" color="textSecondary" component="div">@{post.snshandle}</Typography>
+                      {post.comments
+                        ? <Typography variant="body2" component="div">{post.comments}</Typography>
+                        : <></>
+                      }
+                      {post.snshandle
+                        ? <Typography variant="caption" color="textSecondary" component="div">@{post.snshandle}</Typography>
+                        : <></>
+                      }
                     </CardContent>
                   </CardActionArea>
                 </Card>
