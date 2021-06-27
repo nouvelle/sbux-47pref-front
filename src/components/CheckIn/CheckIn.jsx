@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
@@ -8,7 +9,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
-import Link from '@material-ui/core/Link';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
@@ -92,12 +92,11 @@ const CheckIn = () => {
               return (<Card key={id} className={classes.root}>
                 <CardActionArea>
                   {imgFromS3 && imgFromS3[id]
-                    ? (<Link href={`/post/${post.id}`}>
+                    ? (<Link to={`/post/${post.id}`}>
                         <CardMedia
                           className={classes.media}
                           image={`data:img/jpg;base64,${imgFromS3[id]}`}
                           title={post["image"]}
-                          // onClick={(e) => handleClickCard(e, post)}
                         />
                       </Link>)
                     : <></>
@@ -113,11 +112,11 @@ const CheckIn = () => {
                 </CardContent>
                 <CardActions disableSpacing>
                   <IconButton aria-label="share">
-                    <Link href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></Link>
+                    <a href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></a>
                   </IconButton>
                   {post.snshandle
                     ? <IconButton aria-label="twitter">
-                        <Link href={"https://twitter.com/" + post.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></Link>
+                        <a href={"https://twitter.com/" + post.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></a>
                       </IconButton>
                     : <></>
                   }

@@ -91,8 +91,8 @@ const Header = () => {
       <main>
         <Switch>
           <Route exact path="/" render={() => <CheckIn />} />
-          <Route exact path="/post/:id" component={Post} />
-          <Route exact path="/about" render={() => <About />} />
+          <Route path="/post/:id" render={() => <Post />} />
+          <Route path="/about" render={() => <About />} />
         </Switch>
       </main>
       </ThemeProvider>
