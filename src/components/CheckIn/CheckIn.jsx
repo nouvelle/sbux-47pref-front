@@ -11,10 +11,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
-import TwitterIcon from '@material-ui/icons/Twitter';
-import CardActions from '@material-ui/core/CardActions';
-import IconButton from '@material-ui/core/IconButton';
-import ShareIcon from '@material-ui/icons/Share';
 import moment from 'moment';
 
 import InputDialogCheckIn from './InputDialogCheckIn';
@@ -122,17 +118,6 @@ const CheckIn = () => {
                     : <></>
                   }
                 </CardContent>
-                <CardActions disableSpacing>
-                  <IconButton aria-label="share">
-                    <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/post/" + post.id + "%0a%0a&text=STARBUCKS%2047JIMOTO%20フラペチーノ！%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about"><ShareIcon /></a>
-                  </IconButton>
-                  {post.snshandle
-                    ? <IconButton aria-label="twitter">
-                        <a href={"https://twitter.com/" + post.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></a>
-                      </IconButton>
-                    : <></>
-                  }
-                </CardActions>
               </Card>)
             }) : <></>
           }

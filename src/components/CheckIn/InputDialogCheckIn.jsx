@@ -172,8 +172,16 @@ const InputDialog = (props) => {
 
       // 訪問記録を POST
       const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
+      
+      // 店舗情報を再度取得し、再描画
+      const getUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
+      let info = [];
+
+      // アップロード後、画像リストにある画像を再度S3から画像を取得
+      const getImgUrl = (process.env.NODE_ENV === "production") ? host + "/image/" : "/image/";
 
       setLoading(true);
+      // 訪問記録を POST
       await fetch(postUrl, {
         method: 'POST',
         mode: 'cors',
@@ -187,46 +195,31 @@ const InputDialog = (props) => {
           "image": imgData
         }) 
       })
-      .then(res => res.json())
-      .catch(err => console.log("Error :", err))
-      .finally(() => setLoading(false));
-      
       // 店舗情報を再度取得し、再描画
-      const getUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
-      let info = [];
-
-      setLoading(true);
-      await fetch(getUrl)
-        .then(res => res.json())
-        .then(data => {
-          console.log('data', data)
-          info = data
-          console.log('info', info)
-        })
-        .catch(err => console.log("err :", err))
-        .finally(() => setLoading(false));
-  
+      .then(() => fetch(getUrl))
+      .then(res => res.json())
+      .then(data => info = data)
       // アップロード後、画像リストにある画像を再度S3から画像を取得
-      const getImgUrl = (process.env.NODE_ENV === "production") ? host + "/image/" : "/image/";
-      if(info.length > 0){
-        const base64Arr = await Promise.all(
-          info.map((data) => {
-            if(data.image) {
-              
-              setLoading(true);
-              return fetch(getImgUrl + data.image)
-                .then(res => res.json())
-                .then(img => img.data)
-                .finally(() => setLoading(false));
-            } else {
-              return "";
-            }
-          })
-        );
-        // アップロード後に再度S3から画像を取得後、画面を再描画する。
-        props.setImgFromS3(base64Arr);
-        props.setPostData(info);
-      }
+      .then(async () => {
+        if(info.length > 0){
+          const base64Arr = await Promise.all(
+            info.map((data) => {
+              if(data.image) {
+                return fetch(getImgUrl + data.image)
+                  .then(res => res.json())
+                  .then(img => img.data)
+              } else {
+                return "";
+              }
+            })
+          );
+          // アップロード後に再度S3から画像を取得後、画面を再描画する。
+          props.setImgFromS3(base64Arr);
+          props.setPostData(info);
+        }
+      })
+      .catch(err => console.log("err :", err))
+      .finally(() => setLoading(false));
     }
 
     // state 初期化
@@ -261,7 +254,7 @@ const InputDialog = (props) => {
             <Typography variant="subtitle1" className={classes.drinkName}>{selectedPref ? selectedPref.drink : ''}</Typography>
             <TextField
               margin="dense"
-              id="comment"
+              id="author"
               label="ニックネーム (10文字まで)"
               type="text"
               inputRef={inputAuthorRef}
@@ -270,7 +263,7 @@ const InputDialog = (props) => {
             />
             <TextField
               margin="dense"
-              id="comment"
+              id="secretKey"
               label="シークレットキー (任意・10文字まで)"
               type="text"
               inputRef={inputSecretkeyRef}
@@ -280,7 +273,7 @@ const InputDialog = (props) => {
             <Typography variant="caption" color="textSecondary">※ 画像を削除時に使用します</Typography>
             <TextField
               margin="dense"
-              id="comment"
+              id="twitter"
               label="Twitterハンドル名 (任意)"
               type="text"
               inputRef={inputTwitterRef}
