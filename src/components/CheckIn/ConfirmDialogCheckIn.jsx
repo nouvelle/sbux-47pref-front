@@ -73,10 +73,6 @@ const ConfirmDialogCheckIn= withRouter((props) => {
     props.setIsConfirmOpen(false);
   }
 
-  const handleLoadingClose = () => {
-    setLoading(false);
-  };
-
   return (
     <>
       <Dialog open={props.isConfirmOpen}>
@@ -88,7 +84,7 @@ const ConfirmDialogCheckIn= withRouter((props) => {
           <Button onClick={handleDelete} className={classes.deleteButton}>削除</Button>
         </DialogActions>
       </Dialog>
-      <Backdrop className={classes.backdrop} open={loading} onClick={handleLoadingClose}>
+      <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress color="secondary" />
       </Backdrop>
     </>

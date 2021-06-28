@@ -242,10 +242,6 @@ const InputDialog = (props) => {
     />
   )
 
-  const handleLoadingClose = () => {
-    setLoading(false);
-  };
-
   return (
     <>
       <Dialog open={props.open}>
@@ -329,7 +325,7 @@ const InputDialog = (props) => {
           <Button onClick={handleClose} color="secondary">保存</Button>
         </DialogActions>
       </Dialog>
-      <Backdrop className={classes.backdrop} open={loading} onClick={handleLoadingClose}>
+      <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress color="secondary" />
       </Backdrop>
     </>

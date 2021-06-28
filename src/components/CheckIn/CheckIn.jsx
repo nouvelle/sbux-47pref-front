@@ -94,10 +94,6 @@ const CheckIn = () => {
     getImgFromS3();
   }, []);
 
-  const handleLoadingClose = () => {
-    setLoading(false);
-  };
-
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
@@ -148,7 +144,7 @@ const CheckIn = () => {
         setPostData={setPostData}
         setImgFromS3={setImgFromS3}
       />
-      <Backdrop className={classes.backdrop} open={loading} onClick={handleLoadingClose}>
+      <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress color="secondary" />
       </Backdrop>
     </>
