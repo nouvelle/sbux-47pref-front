@@ -40,30 +40,45 @@ const useStyles = makeStyles(() => ({
   },
   backdrop: {
     zIndex: '1500 !important',
+  },
+  footer: {
+    marginTop: 24,
+    marginBottom: 35,
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  footerBtn: {
+    width: "80%"
   }
 }));
 
 const CheckIn = () => {
-  const [PostData, setPostData] = useState([]);
+  const [postData, setPostData] = useState([]);
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
   const classes = useStyles();
-  
-  useEffect(() => {
-    const getImgFromS3 = async () => {
+
+  // 投稿データ取得
+  const getImgFromS3 = async () => {
+    if (hasMore) {
       const host = config[process.env.NODE_ENV].host
       const url = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       let info = [];
-
+  
       setLoading(true)
-      await fetch(url)
+      const posts = await fetch(`${url}?offset=${offset}`)
         .then(res => res.json())
-        .then(data => {
-          setPostData(data);
-          info = data;
-        })
-        .finally(() => setLoading(false));
+        .then(data => data);
+      info = posts.data;
+      
+      setPostData([...postData, ...posts.data]);
+      setHasMore(posts.has_more);
+      setOffset(offset + 9);
+      setLoading(false)
   
       const getImgUrl = "/image";
       // 画像リストにある画像を取得
@@ -84,19 +99,27 @@ const CheckIn = () => {
             }
           })
         );
-        setImgFromS3(base64Arr);
+        setImgFromS3([...imgFromS3, ...base64Arr]);
       }
     }
+  }
+
+  useEffect(() => {
     getImgFromS3();
   }, []);
+
+  // もっとみるボタンが押された時
+  const doLoadMorePost = () => {
+    getImgFromS3()
+  }
 
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
         <Button id="checkinAdd" variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
-          {PostData.length > 0
-            ? PostData.map((post, id) => {
+          {postData.length > 0
+            ? postData.map((post, id) => {
               return (<Card key={id} className={classes.root}>
                 <CardActionArea>
                   {imgFromS3 && imgFromS3[id]
@@ -122,12 +145,24 @@ const CheckIn = () => {
             }) : <></>
           }
         </div>
+        <div className={classes.footer} >
+          <Button
+            disabled={!hasMore}
+            size="large"
+            className={classes.footerBtn}
+            variant="contained"
+            color="secondary"
+            onClick={() => doLoadMorePost()}
+          >もっとみる</Button>
+        </div>
       </Container>
       <InputDialogCheckIn 
         open={open}
         setOpen={setOpen}
         setPostData={setPostData}
         setImgFromS3={setImgFromS3}
+        setHasMore={setHasMore}
+        setOffset={setOffset}
       />
       <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress color="secondary" />
