@@ -124,7 +124,7 @@ const CheckIn = () => {
                 </CardContent>
                 <CardActions disableSpacing>
                   <IconButton aria-label="share">
-                    <a href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></a>
+                    <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/post/" + post.id + "%0a%0a&text=STARBUCKS%2047JIMOTO%20フラペチーノ！%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about"><ShareIcon /></a>
                   </IconButton>
                   {post.snshandle
                     ? <IconButton aria-label="twitter">

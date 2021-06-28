@@ -122,7 +122,7 @@ const Post = () => {
               }
               <CardActions id="iconWrap">
                 <IconButton aria-label="share" className="buttonItem">
-                  <Link href="https://twitter.com/share?url=https://koeri.surge.sh/&text=47pref&hashtags=47pref" target="_about"><ShareIcon /></Link>
+                  <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/post/" + postData.id + "%0a%0a&text=STARBUCKS%2047JIMOTO%20フラペチーノ！%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about"><ShareIcon /></a>
                 </IconButton>
                 {postData.snshandle
                   ? <IconButton aria-label="twitter" className="buttonItem">

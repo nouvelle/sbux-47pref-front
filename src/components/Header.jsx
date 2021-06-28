@@ -28,10 +28,21 @@ const useStyles = makeStyles({
   fullList: {
     width: 'auto',
   },
+  header: {
+    lineHeight: 0,
+  },
   link: {
+    [theme.breakpoints.up('xs')]: {
+      fontSize: 18,
+      lineHeight: "18px",
+    },
+    [theme.breakpoints.up('sm')]: {
+      fontSize: 24,
+    },
     textDecoration: "none",
     color: "#333",
-  }
+    lineHeight: 0,
+  },
 });
 
 const Header = () => {
@@ -83,8 +94,8 @@ const Header = () => {
           <Drawer open={menu} onClose={toggleDrawer(false)}>
             {list()}
           </Drawer>
-          <Typography id="headerMessage" variant="h6" color="inherit">
-            <Link to="/" className={classes.link}>Welcome to SBUX MAP!</Link>
+          <Typography id="headerMessage" variant="h6" color="inherit" className={classes.header}>
+            <Link to="/" className={classes.link}>Let's check your favorite フラペ！</Link>
           </Typography>
         </Toolbar>
       </AppBar>

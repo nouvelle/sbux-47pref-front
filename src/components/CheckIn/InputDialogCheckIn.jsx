@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
   },
   backdrop: {
     zIndex: '1500 !important',
+  },
+  drinkName: {
+    color: theme.palette.secondary.light,
   }
 }));
 
@@ -255,7 +258,7 @@ const InputDialog = (props) => {
             <div id="selectStoreWrap">
               {makePrefSelect()}
             </div>
-            <Typography variant="subtitle1" color="primary">{selectedPref ? selectedPref.drink : ''}</Typography>
+            <Typography variant="subtitle1" className={classes.drinkName}>{selectedPref ? selectedPref.drink : ''}</Typography>
             <TextField
               margin="dense"
               id="comment"
