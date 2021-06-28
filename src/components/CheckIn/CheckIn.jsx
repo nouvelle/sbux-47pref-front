@@ -41,6 +41,19 @@ const useStyles = makeStyles(() => ({
   backdrop: {
     zIndex: '1500 !important',
   },
+  addBtn: {  
+    width: 60,
+    height: 60,
+    margin: "20px auto",
+    display: "flex",
+    position: "fixed",
+    right: 10,
+    bottom: 0,
+    borderRadius: 50,
+    background: theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
+    zIndex: 3,
+  },
   footer: {
     marginTop: 24,
     marginBottom: 35,
@@ -116,7 +129,7 @@ const CheckIn = () => {
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
-        <Button id="checkinAdd" variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
+        <Button boxShadow={1} className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
           {postData.length > 0
             ? postData.map((post, id) => {
