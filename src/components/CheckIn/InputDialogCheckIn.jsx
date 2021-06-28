@@ -2,7 +2,9 @@ import 'date-fns';
 import React, { useState, useRef, useEffect } from 'react';
 import Compressor from 'compressorjs';
 import { makeStyles } from '@material-ui/core/styles';
+import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -32,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
   errMsg: {
     color: "#e53935",
   },
+  backdrop: {
+    zIndex: '1500 !important',
+  }
 }));
 
 const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
@@ -40,6 +45,7 @@ const InputDialog = (props) => {
   const [prefList, setPrefList] = useState([]);
   const [selectedPref, setSelectedPref] = useState(null);
   const [formData, setFormData] = useState();
+  const [loading, setLoading] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
@@ -52,10 +58,18 @@ const InputDialog = (props) => {
   const classes = useStyles();
 
   useEffect(() => {
-    const host = config[process.env.NODE_ENV].host;
-    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
-    fetch(prefDataUrl).then(res => res.json())
-      .then(data => setPrefList(data))
+    const getData = async () => {
+      const host = config[process.env.NODE_ENV].host;
+      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
+      
+      setLoading(true)
+      await fetch(prefDataUrl)
+        .then(res => res.json())
+        .then(data => setPrefList(data))
+        .finally(() => setLoading(false));
+    }
+
+    getData();
   }, []);
 
   // 都道府県選択
@@ -142,16 +156,21 @@ const InputDialog = (props) => {
       const imgData = `${now}_${selectedPref["id"]}_${imgName}`;
 
       // S3へのアップロード
-      const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}` : `$/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
+      const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}` : `/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
+      
+      setLoading(true);
       await fetch(url, {
         method: 'POST',
         body: formData
       })
       .then((res) => console.log("成功", res))
       .catch(err => console.log("Err ", err))
+      .finally(() => setLoading(false));
 
       // 訪問記録を POST
       const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
+
+      setLoading(true);
       await fetch(postUrl, {
         method: 'POST',
         mode: 'cors',
@@ -167,10 +186,13 @@ const InputDialog = (props) => {
       })
       .then(res => res.json())
       .catch(err => console.log("Error :", err))
+      .finally(() => setLoading(false));
       
       // 店舗情報を再度取得し、再描画
       const getUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       let info = [];
+
+      setLoading(true);
       await fetch(getUrl)
         .then(res => res.json())
         .then(data => {
@@ -178,7 +200,8 @@ const InputDialog = (props) => {
           info = data
           console.log('info', info)
         })
-        .catch(err => console.log("err :", err));
+        .catch(err => console.log("err :", err))
+        .finally(() => setLoading(false));
   
       // アップロード後、画像リストにある画像を再度S3から画像を取得
       const getImgUrl = (process.env.NODE_ENV === "production") ? host + "/image/" : "/image/";
@@ -186,9 +209,12 @@ const InputDialog = (props) => {
         const base64Arr = await Promise.all(
           info.map((data) => {
             if(data.image) {
+              
+              setLoading(true);
               return fetch(getImgUrl + data.image)
                 .then(res => res.json())
                 .then(img => img.data)
+                .finally(() => setLoading(false));
             } else {
               return "";
             }
@@ -216,88 +242,97 @@ const InputDialog = (props) => {
     />
   )
 
+  const handleLoadingClose = () => {
+    setLoading(false);
+  };
+
   return (
-    <Dialog open={props.open}>
-      <DialogTitle id="alert-dialog-title">あなたが飲んだフラペチーノの写真をアップしてね 😋</DialogTitle>
-      <DialogContent>
-        {errMsg
-          ? <Typography variant="subtitle1" className={classes.errMsg}>{errMsg}</Typography>
-          : <></>
-        }
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <div id="selectStoreWrap">
-            {makePrefSelect()}
-          </div>
-          <Typography variant="subtitle1" color="primary">{selectedPref ? selectedPref.drink : ''}</Typography>
-          <TextField
-            margin="dense"
-            id="comment"
-            label="ニックネーム (10文字まで)"
-            type="text"
-            inputRef={inputAuthorRef}
-            inputProps={{ maxLength: 10 }}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            id="comment"
-            label="シークレットキー (任意・10文字まで)"
-            type="text"
-            inputRef={inputSecretkeyRef}
-            inputProps={{ maxLength: 10 }}
-            fullWidth
-          />
-          <Typography variant="caption" color="textSecondary">※ 画像を削除時に使用します</Typography>
-          <TextField
-            margin="dense"
-            id="comment"
-            label="Twitterハンドル名 (任意)"
-            type="text"
-            inputRef={inputTwitterRef}
-            inputProps={{ maxLength: 15 }}
-            fullWidth
-          />
-          <Typography variant="caption" color="textSecondary">※ 入力いただければ Twitterページへのリンクを追加します</Typography>
-          <TextField
-            margin="dense"
-            id="comment"
-            label="コメント (任意・100文字まで)"
-            type="text"
-            inputRef={inputCommentRef}
-            inputProps={{ maxLength: 100 }}
-            fullWidth
-          />
-          <Button
-            variant="outlined"
-            color="secondary"
-            className={classes.button}
-            startIcon={<CloudUploadIcon />}
-            onClick={handleClickUpload}
-          >画像追加</Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            className={classes.button}
-            startIcon={<DeleteIcon />}
-            onClick={handleClearUploadImg}
-          >画像取消</Button>
-          <input
-            type="file"
-            ref={inputImgRef}
-            onChange={handleChange}
-            style={{ display: 'none' }}
-            accept="image/*"
-            name="storeImage"
-          />
-          {imgName ? <Typography variant="caption" display="block">ファイル名：{imgName}</Typography> : <></>}
-          {imgSrc ? <div className="wrapPreview"><img className="preview" src={imgSrc} alt="preview" /></div> : <></>}
-        </MuiPickersUtilsProvider>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCancel} color="secondary">CANCEL</Button>
-        <Button onClick={handleClose} color="secondary">保存</Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog open={props.open}>
+        <DialogTitle id="alert-dialog-title">あなたが飲んだフラペチーノの写真をアップしてね 😋</DialogTitle>
+        <DialogContent>
+          {errMsg
+            ? <Typography variant="subtitle1" className={classes.errMsg}>{errMsg}</Typography>
+            : <></>
+          }
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <div id="selectStoreWrap">
+              {makePrefSelect()}
+            </div>
+            <Typography variant="subtitle1" color="primary">{selectedPref ? selectedPref.drink : ''}</Typography>
+            <TextField
+              margin="dense"
+              id="comment"
+              label="ニックネーム (10文字まで)"
+              type="text"
+              inputRef={inputAuthorRef}
+              inputProps={{ maxLength: 10 }}
+              fullWidth
+            />
+            <TextField
+              margin="dense"
+              id="comment"
+              label="シークレットキー (任意・10文字まで)"
+              type="text"
+              inputRef={inputSecretkeyRef}
+              inputProps={{ maxLength: 10 }}
+              fullWidth
+            />
+            <Typography variant="caption" color="textSecondary">※ 画像を削除時に使用します</Typography>
+            <TextField
+              margin="dense"
+              id="comment"
+              label="Twitterハンドル名 (任意)"
+              type="text"
+              inputRef={inputTwitterRef}
+              inputProps={{ maxLength: 15 }}
+              fullWidth
+            />
+            <Typography variant="caption" color="textSecondary">※ 入力いただければ Twitterページへのリンクを追加します</Typography>
+            <TextField
+              margin="dense"
+              id="comment"
+              label="コメント (任意・100文字まで)"
+              type="text"
+              inputRef={inputCommentRef}
+              inputProps={{ maxLength: 100 }}
+              fullWidth
+            />
+            <Button
+              variant="outlined"
+              color="secondary"
+              className={classes.button}
+              startIcon={<CloudUploadIcon />}
+              onClick={handleClickUpload}
+            >画像追加</Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              className={classes.button}
+              startIcon={<DeleteIcon />}
+              onClick={handleClearUploadImg}
+            >画像取消</Button>
+            <input
+              type="file"
+              ref={inputImgRef}
+              onChange={handleChange}
+              style={{ display: 'none' }}
+              accept="image/*"
+              name="storeImage"
+            />
+            {imgName ? <Typography variant="caption" display="block">ファイル名：{imgName}</Typography> : <></>}
+            {imgSrc ? <div className="wrapPreview"><img className="preview" src={imgSrc} alt="preview" /></div> : <></>}
+          </MuiPickersUtilsProvider>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="secondary">CANCEL</Button>
+          <Button onClick={handleClose} color="secondary">保存</Button>
+        </DialogActions>
+      </Dialog>
+      <Backdrop className={classes.backdrop} open={loading} onClick={handleLoadingClose}>
+        <CircularProgress color="secondary" />
+      </Backdrop>
+    </>
   );
 }
 

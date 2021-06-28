@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
+import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
@@ -51,37 +53,49 @@ const useStyles = makeStyles(() => ({
     background: "#e53935",
     color: "#ffffff"
   },
+  backdrop: {
+    zIndex: '1500 !important',
+  }
 }));
 
 const Post = () => {
   const [postData, setPostData] = useState();
   const [imgFromS3, setImgFromS3] = useState();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [loading, setLoading] = useState(false);
   const classes = useStyles();
   const { id } = useParams();
 
   useEffect(() => {
-    const host = config[process.env.NODE_ENV].host;
-    // 指定された投稿データを取得する
-    const getPostUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
-    const url = `${getPostUrl}/${id}`;
-    return fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setPostData(data)
-        return data
-      })
-      .then(data => {
-        if (data.image) {
-          // 指定された画像を取得する
-          const getImageUrl = (process.env.NODE_ENV === "production") ? `${host}/image/${data.image}` : `/image/${data.image}`;
-          fetch(getImageUrl)
-            .then(res => res.json())
-            .then(img => setImgFromS3(img.data))
-            .catch(err => console.log(err))
-        }
-      })
-      .catch(err => console.log(err))
+    const getData = async () => {
+      const host = config[process.env.NODE_ENV].host;
+      // 指定された投稿データを取得する
+      const getPostUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
+      const url = `${getPostUrl}/${id}`;
+
+      setLoading(true)
+      return await fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          setPostData(data)
+          return data
+        })
+        .then(async data => {
+          if (data.image) {
+            // 指定された画像を取得する
+            const getImageUrl = (process.env.NODE_ENV === "production") ? `${host}/image/${data.image}` : `/image/${data.image}`;
+            
+            await fetch(getImageUrl)
+              .then(res => res.json())
+              .then(img => setImgFromS3(img.data))
+              .catch(err => console.log(err))
+          }
+        })
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
+    }
+
+    getData();
   }, [id]);
   
   // [削除] クリック時
@@ -89,6 +103,11 @@ const Post = () => {
     console.log("DELETE", postData);
     setIsConfirmOpen(true);
   }
+
+
+  const handleLoadingClose = () => {
+    setLoading(false);
+  };
 
   return (
     <>
@@ -129,6 +148,9 @@ const Post = () => {
         postData={postData}
         setImgFromS3={setImgFromS3}
       />
+      <Backdrop className={classes.backdrop} open={loading} onClick={handleLoadingClose}>
+        <CircularProgress color="secondary" />
+      </Backdrop>
     </>
   );
 }
