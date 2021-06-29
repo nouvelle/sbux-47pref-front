@@ -147,7 +147,7 @@ const CheckIn = () => {
                           title={post["image"]}
                         />
                       </Link>)
-                    : imgFromS3.length === 0
+                    : loading
                       ? <></>
                       : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
                   }
