@@ -6,22 +6,25 @@ import theme from '../../theme';
 import '../../index.css'
 
 const useStyles = makeStyles(() => ({
-  root: {
-    display: 'flex'
-  },
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto'
-  },
   container: {
-    height: '90vh',
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    backgroundImage: 'url("/img/store04.jpg")',
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat'
+    height: '100vh',
+    padding: theme.spacing(3),
+    backgroundImage: 'url("/img/about.jpg")',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: "center center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
+  card: {
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box",
+    padding: theme.spacing(4),
+    background: "rgba(255, 255, 255, 0.8)",
+    boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+  }
 }));
 
 const About = () => {
@@ -29,7 +32,9 @@ const About = () => {
 
   return (
     <Container maxWidth="lg" className={classes.container}>
-      <Typography id="aboutMessage">Thank you for visiting this app :)</Typography>
+      <div className={classes.card}>
+      <Typography>後日アップデート予定！</Typography>
+      </div>
     </Container>
   );
 }

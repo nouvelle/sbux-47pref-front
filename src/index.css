@@ -3,22 +3,9 @@ body {
   padding: 0;
   font-family: 'Yusei Magic', sans-serif;
 }
-
-table tbody tr:hover {
-  opacity: 0.5;
-}
-
 .wrapCard {
   display: flex;
   flex-wrap: wrap;
-}
-.singleImage {
-  width: 120px;
-}
-.inputFileBtnHide {
-  opacity:0;
-  appearance: none;
-  position: absolute;
 }
 .wrapPreview {
   display: flex;
@@ -29,20 +16,9 @@ table tbody tr:hover {
   max-width: 350px;
   margin: 0 auto;
 }
-
-#headerMessage {
-  font-size: 24px;
-}
-#checkInMessage,
-#cardCollectionMessage,
-#aboutMessage {
-  font-size: 48px;
-}
-
 #selectStoreWrap {
   display: flex;
 }
-
 #iconWrap .buttonItem:last-child{
   margin-left: auto;
 }

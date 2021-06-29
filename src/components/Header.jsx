@@ -32,6 +32,7 @@ const useStyles = makeStyles({
   },
   header: {
     lineHeight: 0,
+    fontSize: 24,
   },
   link: {
     [theme.breakpoints.up('xs')]: {
@@ -96,7 +97,7 @@ const Header = () => {
           <Drawer open={menu} onClose={toggleDrawer(false)}>
             {list()}
           </Drawer>
-          <Typography id="headerMessage" variant="h6" color="inherit" className={classes.header}>
+          <Typography variant="h6" color="inherit" className={classes.header}>
             <Link to="/" className={classes.link}>Let's check your favorite フラペ！</Link>
           </Typography>
         </Toolbar>
