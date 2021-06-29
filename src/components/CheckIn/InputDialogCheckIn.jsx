@@ -77,8 +77,9 @@ const InputDialog = (props) => {
 
   // 都道府県選択
   const handlePrefChange = (pref) => {
-    const prefId = pref.target.getAttribute("data-option-index");
-    setSelectedPref(prefList[prefId]);
+    for (const prefObj of prefList) {
+      if (prefObj.nameJP === pref.target.innerText) setSelectedPref(prefObj);
+    }
   };
   
   // 画像追加ボタンクリック時
