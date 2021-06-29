@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom';
 import About from './About/About';
 import CheckIn from './CheckIn/CheckIn';
+import Prefs from './Prefs/Prefs';
 import Post from './Post/Post';
 import theme from '../theme';
 
@@ -13,13 +14,13 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import LocalCafeIcon from '@material-ui/icons/LocalCafe';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import InfoIcon from '@material-ui/icons/Info';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import StarIcon from '@material-ui/icons/Star';
-import StoreIcon from '@material-ui/icons/Store';
 
 const useStyles = makeStyles({
   list: {
@@ -68,9 +69,9 @@ const Header = () => {
           <ListItemIcon><StarIcon /></ListItemIcon>
           <ListItemText primary="Home" />
         </ListItem>
-        <ListItem button component={Link} to="/findStore">
-          <ListItemIcon><StoreIcon /></ListItemIcon>
-          <ListItemText primary="Find a store" />
+        <ListItem button component={Link} to="/posts">
+          <ListItemIcon><LocalCafeIcon /></ListItemIcon>
+          <ListItemText primary="All Frappuccino" />
         </ListItem>
       </List>
       <Divider />
@@ -101,8 +102,9 @@ const Header = () => {
       </AppBar>
       <main>
         <Switch>
-          <Route exact path="/" render={() => <CheckIn />} />
-          <Route path="/post/:id" render={() => <Post />} />
+          <Route exact path="/" render={() => <Prefs />} />
+          <Route path="/posts" render={() => <CheckIn />} />
+          <Route path="/posts/:id" render={() => <Post />} />
           <Route path="/about" render={() => <About />} />
         </Switch>
       </main>

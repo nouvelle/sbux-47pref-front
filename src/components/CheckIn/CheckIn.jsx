@@ -38,6 +38,12 @@ const useStyles = makeStyles(() => ({
   media: {
     height: 300,
   },
+  norFound: {
+    height: 300,
+    background: theme.palette.primary.main,
+    textAlign: "center",
+    lineHeight: "200px",
+  },
   backdrop: {
     zIndex: '1500 !important',
   },
@@ -96,22 +102,20 @@ const CheckIn = () => {
       const getImgUrl = "/image";
       // 画像リストにある画像を取得
       if(info.length > 0) {
+        setLoading(true)
         const base64Arr = await Promise.all(
           info.map((data) => {
             if(data.image) {
               const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
-              
-              setLoading(true)
               return fetch(url)
                 .then(res => res.json())
                 .then(img => img.data)
                 .catch(err => console.log(err))
-                .finally(() => setLoading(false));
             } else {
               return "";
             }
           })
-        );
+        ).finally(() => setLoading(false));
         setImgFromS3([...imgFromS3, ...base64Arr]);
       }
     }
@@ -129,21 +133,23 @@ const CheckIn = () => {
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
-        <Button boxShadow={1} className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
+        <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
           {postData.length > 0
             ? postData.map((post, id) => {
               return (<Card key={id} className={classes.root}>
                 <CardActionArea>
                   {imgFromS3 && imgFromS3[id]
-                    ? (<Link to={`/post/${post.id}`}>
+                    ? (<Link to={`/posts/${post.id}`}>
                         <CardMedia
                           className={classes.media}
                           image={`data:img/jpg;base64,${imgFromS3[id]}`}
                           title={post["image"]}
                         />
                       </Link>)
-                    : <></>
+                    : imgFromS3.length === 0
+                      ? <></>
+                      : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
                   }
                 </CardActionArea>
                 <CardContent>
