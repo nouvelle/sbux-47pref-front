@@ -153,7 +153,7 @@ const CheckIn = () => {
                   }
                 </CardActionArea>
                 <CardContent>
-                  <Typography variant="button" component="div">#{post.id} {post.pref.nameJP}</Typography>
+                  <Typography variant="button" component="div">#{post.pref.id} {post.pref.name}</Typography>
                   <Typography variant="body2" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {post.author}</Typography>
                   {post.comments
                     ? <Typography style={{ wordWrap: 'break-word' }} variant="body2">{post.comments}</Typography>

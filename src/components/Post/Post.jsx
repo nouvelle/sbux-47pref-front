@@ -114,7 +114,7 @@ const Post = () => {
                 src={`data:img/jpg;base64,${imgFromS3}`} 
                 alt="post" 
               />
-              <Typography variant="h6" component="div">#{postData.id} {postData.pref.nameJP}</Typography>
+              <Typography variant="h6" component="div">#{postData.pref.id} {postData.pref.nameJP}</Typography>
               <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
               {postData.comments
                 ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
