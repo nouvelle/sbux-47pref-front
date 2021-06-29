@@ -103,8 +103,8 @@ const Header = () => {
       <main>
         <Switch>
           <Route exact path="/" render={() => <Prefs />} />
-          <Route path="/posts" render={() => <CheckIn />} />
           <Route path="/posts/:id" render={() => <Post />} />
+          <Route path="/posts" render={() => <CheckIn />} />
           <Route path="/about" render={() => <About />} />
         </Switch>
       </main>
