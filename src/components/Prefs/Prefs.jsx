@@ -71,7 +71,6 @@ const useStyles = makeStyles(() => ({
 const Prefs = () => {
   const [prefList, setPrefList] = useState();
   const [selectedPref, setSelectedPref] = useState();
-  // const [imgFromS3, setImgFromS3] = useState();
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
   const classes = useStyles();
@@ -79,8 +78,7 @@ const Prefs = () => {
   useEffect(() => {
     const getData = async () => {
       const host = config[process.env.NODE_ENV].host;
-      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
-      
+      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
       setLoading(true)
       await fetch(prefDataUrl)
         .then(res => res.json())
@@ -105,12 +103,11 @@ const Prefs = () => {
               return (<Card key={pref.id} className={classes.root}>
                 <CardActionArea>
                   {pref.is_post 
-                    ? (<Link to={`/posts/${pref.id}`}>
+                    ? (<Link to={`/posts/${pref.posts[0].id}`}>
                         <CardMedia
                           className={classes.media}
-                          image="https://material-ui.com/static/images/grid-list/morning.jpg"
-                          // image={`data:img/jpg;base64,${imgFromS3[id]}`}
-                          // title={post["image"]}
+                          image={`data:img/jpg;base64,${pref.s3Image.data}`}
+                          title={pref.drink}
                         />
                       </Link>)
                     :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
@@ -139,9 +136,6 @@ const Prefs = () => {
         setSelectedPref={setSelectedPref}
         selectedPref={selectedPref}
         setPrefList={setPrefList}
-        // setImgFromS3={setImgFromS3}
-        // setHasMore={setHasMore}
-        // setOffset={setOffset}
       />
       </Container>
       <Backdrop className={classes.backdrop} open={loading}>
