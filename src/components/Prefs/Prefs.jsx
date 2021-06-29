@@ -103,7 +103,7 @@ const Prefs = () => {
               return (<Card key={pref.id} className={classes.root}>
                 <CardActionArea>
                   {pref.is_post 
-                    ? (<Link to={`/posts/${pref.posts[0].id}`}>
+                    ? (<Link to={`/pref/${pref.id}`}>
                         <CardMedia
                           className={classes.media}
                           image={`data:img/jpg;base64,${pref.s3Image.data}`}

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom'
 import About from './About/About';
 import CheckIn from './CheckIn/CheckIn';
 import Prefs from './Prefs/Prefs';
+import Pref from './Pref/Pref';
 import Post from './Post/Post';
 import theme from '../theme';
 
@@ -105,6 +106,7 @@ const Header = () => {
           <Route exact path="/" render={() => <Prefs />} />
           <Route path="/posts/:id" render={() => <Post />} />
           <Route path="/posts" render={() => <CheckIn />} />
+          <Route path="/pref/:id" render={() => <Pref />} />
           <Route path="/about" render={() => <About />} />
         </Switch>
       </main>

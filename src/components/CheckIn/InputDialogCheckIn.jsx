@@ -138,8 +138,6 @@ const InputDialog = (props) => {
     setErrMsg("");
     setSelectedPref(null);
     props.setOpen(false);
-    props.setHasMore(true);
-    props.setOffset(0);
   }
 
   // ポップアップの [保存] クリック時
@@ -200,7 +198,11 @@ const InputDialog = (props) => {
       // 店舗情報を再度取得し、再描画
       .then(() => fetch(getUrl))
       .then(res => res.json())
-      .then(data => info = data.data)
+      .then(data => {
+        props.setHasMore(data.has_more);
+        props.setOffset(9);
+        return info = data.data;
+      })
       // アップロード後、画像リストにある画像を再度S3から画像を取得
       .then(async () => {
         if(info.length > 0){
