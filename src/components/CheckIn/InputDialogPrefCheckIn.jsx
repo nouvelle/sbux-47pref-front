@@ -122,7 +122,6 @@ const InputDialogPrefCheckIn = (props) => {
     if (!imgName) return setErrMsg("画像をアップロードしてね！");
     
     // 画像データが設定されている時だけアップロード
-    console.log("S3へのアップロード")
     const imgData = `${now}_${props.selectedPref.id}_${imgName}`;
 
     // S3へのアップロード
@@ -133,7 +132,7 @@ const InputDialogPrefCheckIn = (props) => {
       method: 'POST',
       body: formData
     })
-    .then((res) => console.log("成功", res))
+    // .then((res) => console.log("成功", res))
     .catch(err => console.log("Err ", err))
     .finally(() => setLoading(false));
 

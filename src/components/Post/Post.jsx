@@ -100,7 +100,6 @@ const Post = () => {
   
   // [削除] クリック時
   const handleDelete = async () => {
-    console.log("DELETE", postData);
     setIsConfirmOpen(true);
   }
 

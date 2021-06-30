@@ -157,7 +157,6 @@ const InputDialogCheckIn = withRouter((props) => {
     // 店舗情報が存在する場合のみ保存を行う
     if(selectedPref) {
       // 画像データが設定されている時だけアップロード
-      console.log("S3へのアップロード", selectedPref)
       const imgData = `${now}_${selectedPref["id"]}_${imgName}`;
 
       // S3へのアップロード
@@ -168,7 +167,7 @@ const InputDialogCheckIn = withRouter((props) => {
         method: 'POST',
         body: formData
       })
-      .then((res) => console.log("成功", res))
+      // .then((res) => console.log("成功", res))
       .catch(err => console.log("Err ", err))
       .finally(() => setLoading(false));
 
