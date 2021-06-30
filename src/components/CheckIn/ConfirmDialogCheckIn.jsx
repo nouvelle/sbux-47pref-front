@@ -62,10 +62,12 @@ const ConfirmDialogCheckIn= withRouter((props) => {
     })
     .then(res => res.json())
     .catch(err => console.log("Error :", err))
-    .finally(() => setLoading(false));
-
-    // トップに戻る
-    props.history.push("/")
+    .finally(() => {
+      setLoading(false)
+      
+      // トップに戻る
+      props.history.push("/")
+    });
   }
   
   // ポップアップの [CANCEL] クリック時

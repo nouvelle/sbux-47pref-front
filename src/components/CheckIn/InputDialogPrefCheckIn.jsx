@@ -140,12 +140,8 @@ const InputDialogPrefCheckIn = (props) => {
     // 訪問記録を POST
     const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
     
-    // 店舗情報を再度取得し、再描画
-    const getPref = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
-    let info = [];
-
-    // アップロード後、画像リストにある画像を再度S3から画像を取得
-    // const getImgUrl = (process.env.NODE_ENV === "production") ? host + "/image/" : "/image/";
+    // 都道府県の投稿情報を再度取得し、再描画
+    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
 
     setLoading(true);
     // 訪問記録を POST
@@ -162,34 +158,18 @@ const InputDialogPrefCheckIn = (props) => {
         "image": imgData
       }) 
     })
-    // 店舗情報を再度取得し、再描画
-    .then(() => fetch(getPref))
+    // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
+    .then(() => fetch(prefDataUrl))
     .then(res => res.json())
-    .then(data => info = data)
-    // TODO: アップロード後、画像リストにある画像を再度S3から画像を取得
-    .then(async () => {
-    //   if(info.length > 0){
-    //     const base64Arr = await Promise.all(
-    //       info.map((data) => {
-    //         if(data.image) {
-    //           return fetch(getImgUrl + data.image)
-    //             .then(res => res.json())
-    //             .then(img => img.data)
-    //         } else {
-    //           return "";
-    //         }
-    //       })
-    //     );
-    //     // アップロード後に再度S3から画像を取得後、画面を再描画する。
-    //     // props.setImgFromS3(base64Arr);
-        props.setPrefList(info);
-    //   }
-    })
+    .then(data => props.setPrefList(data))
     .catch(err => console.log("err :", err))
-    .finally(() => setLoading(false));
+    .finally(() => {
+      setLoading(false)
+      
+      // state 初期化
+      handleCancel()
+    });
 
-    // state 初期化
-    handleCancel()
   };
 
   return (
@@ -221,7 +201,7 @@ const InputDialogPrefCheckIn = (props) => {
               inputProps={{ maxLength: 10 }}
               fullWidth
             />
-            <Typography variant="caption" color="textSecondary">※ 画像を削除時に使用します</Typography>
+            <Typography variant="caption" color="textSecondary">※ 画像削除時に使用します</Typography>
             <TextField
               margin="dense"
               id="twitter"
