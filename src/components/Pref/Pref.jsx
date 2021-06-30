@@ -81,6 +81,7 @@ const Pref = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
+  const [isExist, setIsExist] = useState("init");
   const classes = useStyles();
   const { id } = useParams();
 
@@ -95,31 +96,40 @@ const Pref = () => {
         .then(res => res.json())
       info = posts.data;
 
-      setPostData([...postData, ...posts.data]);
-      setPrefName(posts.data[0].pref.name)
-      setHasMore(posts.has_more);
-      setOffset(offset + 9);
-      setLoading(false)
+      // 該当の都道府県データ(posts.data) が 0件の時の考慮
+      if (posts.data.length === 0) {
+        setIsExist(false)
+        setHasMore(false);
+        setLoading(false)
+      } else {
+        setPostData([...postData, ...posts.data]);
+        setPrefName(posts.data[0].pref.name)
+        setHasMore(posts.has_more);
+        setOffset(offset + 9);
+        setLoading(false)
   
-      const getImgUrl = "/image";
-      // 画像リストにある画像を取得
-      if(info.length > 0) {
-        setLoading(true)
-        const base64Arr = await Promise.all(
-          info.map((data) => {
-            if(data.image) {
-              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
-              return fetch(url)
-                .then(res => res.json())
-                .then(img => img.data)
-                .catch(err => console.log(err))
-            } else {
-              return "";
-            }
-          })
-        ).finally(() => setLoading(false));
-        setImgFromS3([...imgFromS3, ...base64Arr]);
+        const getImgUrl = "/image";
+        // 画像リストにある画像を取得
+        if(info.length > 0) {
+          setLoading(true)
+          const base64Arr = await Promise.all(
+            info.map((data) => {
+              if(data.image) {
+                const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
+                return fetch(url)
+                  .then(res => res.json())
+                  .then(img => img.data)
+                  .catch(err => console.log(err))
+              } else {
+                return "";
+              }
+            })
+          ).finally(() => setLoading(false));
+          setImgFromS3([...imgFromS3, ...base64Arr]);
+        }
+        setIsExist(true)
       }
+
     }
   }
 
@@ -136,8 +146,11 @@ const Pref = () => {
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
-      <Typography variant="h3" component="h3">#{id} {prefName}</Typography>
-        <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
+      {!isExist
+        ? <Typography variant="h3" component="h3">選択した都道府県の画像は存在しません。</Typography>
+        : <Typography variant="h3" component="h3">#{id} {prefName}</Typography>
+      }
+      <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
           {postData.length > 0
             ? postData.map((post, id) => {
@@ -167,16 +180,19 @@ const Pref = () => {
             }) : <></>
           }
         </div>
-        <div className={classes.footer} >
-          <Button
-            disabled={!hasMore}
-            size="large"
-            className={classes.footerBtn}
-            variant="contained"
-            color="secondary"
-            onClick={() => doLoadMorePost()}
-          >もっとみる</Button>
-        </div>
+        {!isExist
+          ? <></>
+          : (<div className={classes.footer} >
+              <Button
+                disabled={!hasMore}
+                size="large"
+                className={classes.footerBtn}
+                variant="contained"
+                color="secondary"
+                onClick={() => doLoadMorePost()}
+              >もっとみる</Button>
+            </div>)
+        }
       </Container>
       <InputDialogCheckIn 
         open={open}

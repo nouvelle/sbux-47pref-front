@@ -65,8 +65,8 @@ const ConfirmDialogCheckIn= withRouter((props) => {
     .finally(() => {
       setLoading(false)
       
-      // トップに戻る
-      props.history.push("/")
+      // 前のページに戻る
+      props.history.goBack()
     });
   }
   
