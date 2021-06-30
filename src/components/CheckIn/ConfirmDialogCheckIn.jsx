@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { withRouter } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -8,9 +8,14 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import config from '../../config';
 
 const useStyles = makeStyles((theme) => ({
+  dialogContent: {
+    minWidth: 330,
+  },
   button: {
     marginTop: theme.spacing(2),
     marginRight: theme.spacing(1),
@@ -20,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     marginBottom: theme.spacing(1),
     minWidth: 120,
+  },
+  errMsg: {
+    color: "#e53935",
   },
   deleteButton: {
     color: "#e53935",
@@ -31,11 +39,28 @@ const useStyles = makeStyles((theme) => ({
 
 const ConfirmDialogCheckIn= withRouter((props) => {
   const [loading, setLoading] = useState(false);
+  const [isSecretKey, setIsSecretKey] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+  const inputSecretkeyRef = useRef();
   const classes = useStyles();
+
+  useEffect(() => {
+    if (props.postData && props.postData.secretkey) {
+      setIsSecretKey(props.postData.secretkey);
+    }
+  }, [props.postData]);
 
   // ポップアップの [削除] クリック時
   const handleDelete = async () => {
     const host = config[process.env.NODE_ENV].host;
+
+    // シークレットキーの確認
+    if (isSecretKey) {
+      const secretkey = inputSecretkeyRef.current.value;
+      if (!secretkey) return setErrMsg("シークレットキを入力してね！");
+      if (secretkey !== isSecretKey) return setErrMsg("シークレットキーが正しくありません。");
+    }
+
     // 選択された画像をS3から削除
     const deleteUrlS3 = (process.env.NODE_ENV === "production") ? host + "/image" : "/image";
     
@@ -72,6 +97,7 @@ const ConfirmDialogCheckIn= withRouter((props) => {
   
   // ポップアップの [CANCEL] クリック時
   const handleCancel = () => {
+    setErrMsg("");
     props.setIsConfirmOpen(false);
   }
 
@@ -79,7 +105,24 @@ const ConfirmDialogCheckIn= withRouter((props) => {
     <>
       <Dialog open={props.isConfirmOpen}>
         <DialogTitle id="alert-dialog-title">この投稿を削除しますか？</DialogTitle>
-        <DialogContent>
+        <DialogContent className={classes.dialogContent}>
+          {errMsg
+            ? <Typography variant="subtitle1" className={classes.errMsg}>{errMsg}</Typography>
+            : <></>
+          }
+          {isSecretKey
+            ? (<TextField
+                margin="dense"
+                id="twitter"
+                label="シークレットキーを入力してください"
+                type="text"
+                inputRef={inputSecretkeyRef}
+                inputProps={{ maxLength: 15 }}
+                fullWidth
+              />)
+            : <></>
+          }
+          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel} color="secondary">CANCEL</Button>
