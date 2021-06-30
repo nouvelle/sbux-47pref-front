@@ -33,7 +33,13 @@ const About = () => {
   return (
     <Container maxWidth="lg" className={classes.container}>
       <div className={classes.card}>
-      <Typography>後日アップデート予定！</Typography>
+      <Typography>
+        後日アップデート予定！<br />
+        <br />
+        * お断り *<br />
+        関係のない写真が投稿されているのを発見した場合、こちらで投稿を削除させていただく場合があります。<br />
+        あらかじめご了承ください。<br />
+      </Typography>
       </div>
     </Container>
   );
