@@ -114,12 +114,17 @@ const Post = () => {
                 alt="post" 
               />
               <Typography variant="h6" component="div">#{postData.pref.id} {postData.pref.nameJP}</Typography>
-              {postData.snshandle
-                  ? (<Typography variant="h6" color="textSecondary" component="div">
+              {!postData.snshandle
+                  ? <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
+                  : postData.snshandle[0] === "@" 
+                    ? (<Typography variant="h6" color="textSecondary" component="div">
                       {moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author} (
-                        <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >@{postData.snshandle}</Link>)
+                        <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >{postData.snshandle}</Link>)
+                      </Typography>)
+                    : (<Typography variant="h6" color="textSecondary" component="div">
+                    {moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author} (
+                      <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >@{postData.snshandle}</Link>)
                     </Typography>)
-                  : <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
                 }
               {postData.comments
                 ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
