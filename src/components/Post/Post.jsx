@@ -10,7 +10,6 @@ import Link from '@material-ui/core/Link';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
-import ShareIcon from '@material-ui/icons/Share';
 import moment from 'moment';
 
 import theme from '../../theme';

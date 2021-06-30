@@ -39,14 +39,29 @@ const useStyles = makeStyles((theme) => ({
 
 const ConfirmDialogCheckIn= withRouter((props) => {
   const [loading, setLoading] = useState(false);
-  const [isSecretKey, setIsSecretKey] = useState("");
+  const [isSecretKey, setIsSecretKey] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const inputSecretkeyRef = useRef();
   const classes = useStyles();
 
   useEffect(() => {
-    if (props.postData && props.postData.secretkey) {
-      setIsSecretKey(props.postData.secretkey);
+    const keyCheck = async () => {
+      const host = config[process.env.NODE_ENV].host;
+      const keyCheckUrl = (process.env.NODE_ENV === "production") ? host + `/posts/${props.postData.id}/keyCheck` : `/posts/${props.postData.id}/keyCheck`;
+  
+      // 指定した投稿IDがシークレットキーを持っているかどうかチェックする
+      setLoading(true);
+      const isKey = await fetch(keyCheckUrl)
+      .then(res => res.json())
+      .catch(err => console.log("Error :", err))
+      .finally(() => setLoading(false));
+      
+      // シークレットキーを持っているかどうか(持っている: true, 持っていない: false)
+      setIsSecretKey(isKey.result);
+    }
+
+    if (props.postData) {
+      keyCheck();
     }
   }, [props.postData]);
 
@@ -54,11 +69,28 @@ const ConfirmDialogCheckIn= withRouter((props) => {
   const handleDelete = async () => {
     const host = config[process.env.NODE_ENV].host;
 
-    // シークレットキーの確認
+    // シークレットキーの確認(シークレットキーを持っている: true)
     if (isSecretKey) {
       const secretkey = inputSecretkeyRef.current.value;
       if (!secretkey) return setErrMsg("シークレットキを入力してね！");
-      if (secretkey !== isSecretKey) return setErrMsg("シークレットキーが正しくありません。");
+
+      const keyCheckUrl = (process.env.NODE_ENV === "production") ? host + `/posts/${props.postData.id}/keyCheck` : `/posts/${props.postData.id}/keyCheck`;
+
+      // 指定した投稿IDのシークレットキーが正しいかどうかをチェックする
+      setLoading(true);
+      const isKeyCorrect = await fetch(keyCheckUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "key": secretkey
+        }) 
+      })
+      .then(res => res.json())
+      .catch(err => console.log("Error :", err))
+      .finally(() => setLoading(false));
+      
+      if (!isKeyCorrect.result) return setErrMsg("シークレットキーが正しくありません。");
     }
 
     // 選択された画像をS3から削除
