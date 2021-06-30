@@ -125,6 +125,7 @@ const Pref = () => {
 
   useEffect(() => {
     getImgFromS3();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // もっとみるボタンが押された時

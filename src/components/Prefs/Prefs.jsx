@@ -97,39 +97,39 @@ const Prefs = () => {
   return (
     <>
     <Container maxWidth="lg" className={classes.container}>
-          {prefList && prefList.length > 0
-            ? prefList.map(pref => {
-              const imgId = Math.floor(pref.id % 4);
-              return (<Card key={pref.id} className={classes.root}>
-                <CardActionArea>
-                  {pref.is_post 
-                    ? (<Link to={`/pref/${pref.id}`}>
-                        <CardMedia
-                          className={classes.media}
-                          image={`data:img/jpg;base64,${pref.s3Image.data}`}
-                          title={pref.drink}
-                        />
-                      </Link>)
-                    :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
-                          <Typography variant="body2" color="textSecondary" className={classes.noImgText}>Please Post!</Typography>
-                          {imgId === 0 
-                            ? <CardMedia className={classes.mediaNo} image={frap0} title={pref.name} />
-                            : imgId === 1
-                              ? <CardMedia className={classes.mediaNo} image={frap1} title={pref.name} />
-                              : imgId === 2
-                                ? <CardMedia className={classes.mediaNo} image={frap2} title={pref.name} />
-                                : <CardMedia className={classes.mediaNo} image={frap3} title={pref.name} />
-                          }
-                        </div>)
-                  }
-                </CardActionArea>
-                <CardContent className={classes.content}>
-                  <div variant="button" component="div">#{pref.id} {pref.nameJP}</div>
-                </CardContent>
-              </Card>)
-            })
-            : <></>
-          }
+      {prefList && prefList.length > 0
+        ? prefList.map(pref => {
+          const imgId = Math.floor(pref.id % 4);
+          return (<Card key={pref.id} className={classes.root}>
+            <CardActionArea>
+              {pref.is_post 
+                ? (<Link to={`/pref/${pref.id}`}>
+                    <CardMedia
+                      className={classes.media}
+                      image={`data:img/jpg;base64,${pref.s3Image.data}`}
+                      title={pref.drink}
+                    />
+                  </Link>)
+                :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
+                      <Typography variant="body2" color="textSecondary" className={classes.noImgText}>Please Post!</Typography>
+                      {imgId === 0 
+                        ? <CardMedia className={classes.mediaNo} image={frap0} title={pref.name} />
+                        : imgId === 1
+                          ? <CardMedia className={classes.mediaNo} image={frap1} title={pref.name} />
+                          : imgId === 2
+                            ? <CardMedia className={classes.mediaNo} image={frap2} title={pref.name} />
+                            : <CardMedia className={classes.mediaNo} image={frap3} title={pref.name} />
+                      }
+                    </div>)
+              }
+            </CardActionArea>
+            <CardContent className={classes.content}>
+              <div variant="button" component="div">#{pref.id} {pref.nameJP}</div>
+            </CardContent>
+          </Card>)
+        })
+        : <></>
+      }
       <InputDialogPrefCheckIn 
         open={open}
         setOpen={setOpen}
