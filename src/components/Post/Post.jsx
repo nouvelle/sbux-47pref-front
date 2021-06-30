@@ -114,21 +114,23 @@ const Post = () => {
                 alt="post" 
               />
               <Typography variant="h6" component="div">#{postData.pref.id} {postData.pref.nameJP}</Typography>
-              <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
+              {postData.snshandle
+                  ? (<Typography variant="h6" color="textSecondary" component="div">
+                      {moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author} (
+                        <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >@{postData.snshandle}</Link>)
+                    </Typography>)
+                  : <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
+                }
               {postData.comments
                 ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
                 : <></>
               }
               <CardActions id="iconWrap">
                 <IconButton aria-label="share" className="buttonItem">
-                  <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/posts/" + postData.id + "%0a%0a&text=STARBUCKS%2047JIMOTO%20フラペチーノ！%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about"><ShareIcon /></a>
+                  <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/posts/" + postData.id + "%0a%0a&text=STARBUCKS%2047JIMOTO%20フラペチーノ！%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about">
+                    <TwitterIcon style={{ color: "#1DA1F2" }} />
+                  </a>
                 </IconButton>
-                {postData.snshandle
-                  ? <IconButton aria-label="twitter" className="buttonItem">
-                      <Link href={"https://twitter.com/" + postData.snshandle} target="_about" ><TwitterIcon style={{ color: "#1DA1F2" }} /></Link>
-                    </IconButton>
-                  : <></>
-                }
                 <Button variant="contained" onClick={handleDelete} className={`buttonItem ${classes.deleteButton}`}>削除</Button>
               </CardActions>
             </div>)
