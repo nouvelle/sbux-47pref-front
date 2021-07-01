@@ -36,6 +36,9 @@ const useStyles = makeStyles(() => ({
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
   },
+  drink: {
+    marginBottom: 10,
+  },
   media: {
     height: 300,
   },
@@ -75,7 +78,7 @@ const useStyles = makeStyles(() => ({
 
 const Pref = () => {
   const [postData, setPostData] = useState([]);
-  const [prefName, setPrefName] = useState("");
+  const [slectedPref, setSlectedPref] = useState("");
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
@@ -103,7 +106,7 @@ const Pref = () => {
         setLoading(false)
       } else {
         setPostData([...postData, ...posts.data]);
-        setPrefName(posts.data[0].pref.name)
+        setSlectedPref(posts.data[0].pref)
         setHasMore(posts.has_more);
         setOffset(offset + 9);
         setLoading(false)
@@ -148,7 +151,7 @@ const Pref = () => {
       <Container maxWidth="lg" className={classes.container}>
       {!isExist
         ? <Typography variant="h3" component="h3">選択した都道府県の画像は存在しません。</Typography>
-        : <Typography variant="h3" component="h3">#{id} {prefName}</Typography>
+        : <Typography variant="h5" component="h5" className={classes.drink}>#{id} {slectedPref.drink}</Typography>
       }
       <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
