@@ -1,36 +1,28 @@
 import 'date-fns';
-import React, { useState, useRef, useEffect } from 'react';
-import { withRouter } from "react-router-dom";
+import React, { useState, useRef } from 'react';
 import Compressor from 'compressorjs';
+import DateFnsUtils from '@date-io/date-fns';
+// material-ui
 import { makeStyles } from '@material-ui/core/styles';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DateFnsUtils from '@date-io/date-fns';
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import {
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
-import config from '../../config';
+
+import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(2),
     marginRight: theme.spacing(1),
-  },
-  formControl: {
-    marginTop: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    minWidth: 120,
   },
   errMsg: {
     color: "#e53935",
@@ -45,9 +37,7 @@ const useStyles = makeStyles((theme) => ({
 
 const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
 
-const InputDialogCheckIn = withRouter((props) => {
-  const [prefList, setPrefList] = useState([]);
-  const [selectedPref, setSelectedPref] = useState(null);
+const InputDialogPrefCheckIn = (props) => {
   const [formData, setFormData] = useState();
   const [loading, setLoading] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
@@ -60,28 +50,6 @@ const InputDialogCheckIn = withRouter((props) => {
   const inputTwitterRef = useRef();
   const inputCommentRef = useRef();
   const classes = useStyles();
-
-  useEffect(() => {
-    const getData = async () => {
-      const host = config[process.env.NODE_ENV].host;
-      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref" : "/pref";
-      
-      setLoading(true)
-      await fetch(prefDataUrl)
-        .then(res => res.json())
-        .then(data => setPrefList(data))
-        .finally(() => setLoading(false));
-    }
-
-    getData();
-  }, []);
-
-  // 都道府県選択
-  const handlePrefChange = (pref) => {
-    for (const prefObj of prefList) {
-      if (prefObj.nameJP === pref.target.innerText) setSelectedPref(prefObj);
-    }
-  };
   
   // 画像追加ボタンクリック時
   const handleClickUpload = () => {
@@ -138,7 +106,7 @@ const InputDialogCheckIn = withRouter((props) => {
     setImgName("");
     setNow(0);
     setErrMsg("");
-    setSelectedPref(null);
+    props.setSelectedPref(null);
     props.setOpen(false);
   }
 
@@ -150,69 +118,58 @@ const InputDialogCheckIn = withRouter((props) => {
     const twitter = inputTwitterRef.current.value;
     const inputText = inputCommentRef.current.value;
 
-    if (!selectedPref) return setErrMsg("都道府県を選択してね！");
     if (!author) return setErrMsg("ニックネームを入力してね！");
     if (!imgName) return setErrMsg("画像をアップロードしてね！");
     
-    // 店舗情報が存在する場合のみ保存を行う
-    if(selectedPref) {
-      // 画像データが設定されている時だけアップロード
-      const imgData = `${now}_${selectedPref["id"]}_${imgName}`;
+    // 画像データが設定されている時だけアップロード
+    const imgData = `${now}_${props.selectedPref.id}_${imgName}`;
 
-      // S3へのアップロード
-      const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}` : `/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
+    // S3へのアップロード
+    const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${props.selectedPref.id}&date=${now}&imgData=${imgData}` : `/image?prefId=${props.selectedPref.id}&date=${now}&imgData=${imgData}`;
+    
+    setLoading(true);
+    await fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    // .then((res) => console.log("成功", res))
+    .catch(err => console.log("Err ", err))
+    .finally(() => setLoading(false));
+
+    // 訪問記録を POST
+    const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
+    
+    // 都道府県の投稿情報を再度取得し、再描画
+    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
+
+    setLoading(true);
+    // 訪問記録を POST
+    await fetch(postUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        "author": author,
+        "secretkey": secretkey,
+        "snshandle": twitter,
+        "comments": inputText,
+        "pref_id": props.selectedPref.id,
+        "image": imgData
+      }) 
+    })
+    // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
+    .then(() => fetch(prefDataUrl))
+    .then(res => res.json())
+    .then(data => props.setPrefList(data))
+    .catch(err => console.log("err :", err))
+    .finally(() => {
+      setLoading(false)
       
-      setLoading(true);
-      await fetch(url, {
-        method: 'POST',
-        body: formData
-      })
-      // .then((res) => console.log("成功", res))
-      .catch(err => console.log("Err ", err))
-      .finally(() => setLoading(false));
+      // state 初期化
+      handleCancel()
+    });
 
-      // 訪問記録を POST
-      const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
-      
-      setLoading(true);
-      // 訪問記録を POST
-      await fetch(postUrl, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          "author": author,
-          "secretkey": secretkey,
-          "snshandle": twitter,
-          "comments": inputText,
-          "pref_id": selectedPref["id"],
-          "image": imgData
-        }) 
-      })
-      .catch(err => console.log("err :", err))
-      .finally(() => {
-        setLoading(false)
-
-        // state 初期化
-        handleCancel()
-        
-        // トップに戻る
-        props.history.push("/")
-      });
-    }
   };
-
-  // 都道府県選択のDOM
-  const makePrefSelect = () => (
-    <Autocomplete
-      id="pref-select"
-      options={prefList}
-      getOptionLabel={(pref) => pref["nameJP"]}
-      style={{ width: 120 }}
-      renderInput={(params) => <TextField {...params} label="都道府県" />}
-      onChange={handlePrefChange}
-    />
-  )
 
   return (
     <>
@@ -224,10 +181,7 @@ const InputDialogCheckIn = withRouter((props) => {
             : <></>
           }
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <div id="selectStoreWrap">
-              {makePrefSelect()}
-            </div>
-            <Typography variant="subtitle1" className={classes.drinkName}>{selectedPref ? selectedPref.drink : ''}</Typography>
+            <Typography variant="subtitle1" className={classes.drinkName}>{props.selectedPref ? props.selectedPref.drink : ''}</Typography>
             <TextField
               margin="dense"
               id="author"
@@ -302,6 +256,6 @@ const InputDialogCheckIn = withRouter((props) => {
       </Backdrop>
     </>
   );
-});
+}
 
-export default InputDialogCheckIn;
+export default InputDialogPrefCheckIn;

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { withRouter } from "react-router-dom";
+// material-ui
 import { makeStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
@@ -10,7 +11,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import config from '../../config';
+
+import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -37,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const ConfirmDialogCheckIn= withRouter((props) => {
+const ConfirmDialogCheckIn = withRouter((props) => {
   const [loading, setLoading] = useState(false);
   const [isSecretKey, setIsSecretKey] = useState(false);
   const [errMsg, setErrMsg] = useState("");

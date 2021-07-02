@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from "react-router-dom";
+// material-ui
 import Backdrop from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
+// components
+import InputDialogPrefCheckIn from '../../organisms/InputDialogPrefCheckIn/index';
 
-import theme from '../../theme';
-import config from '../../config';
-import frap0 from '../../assets/svg/frap0.svg';
-import frap1 from '../../assets/svg/frap1.svg';
-import frap2 from '../../assets/svg/frap2.svg';
-import frap3 from '../../assets/svg/frap3.svg';
-import '../../index.css'
-
-import InputDialogPrefCheckIn from '../CheckIn/InputDialogPrefCheckIn';
+import theme from '../../../theme';
+import config from '../../../config';
+import frap0 from '../../../assets/svg/frap0.svg';
+import frap1 from '../../../assets/svg/frap1.svg';
+import frap2 from '../../../assets/svg/frap2.svg';
+import frap3 from '../../../assets/svg/frap3.svg';
+import '../../../index.css'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -72,7 +73,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const Prefs = () => {
+const PrefList = () => {
   const [prefList, setPrefList] = useState();
   const [selectedPref, setSelectedPref] = useState();
   const [open, setOpen] = useState(false)
@@ -149,4 +150,4 @@ const Prefs = () => {
   );
 }
 
-export default Prefs;
+export default PrefList;

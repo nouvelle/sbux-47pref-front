@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
+// material-ui
 import { makeStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
+import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
-import TwitterIcon from '@material-ui/icons/Twitter';
-import CardActions from '@material-ui/core/CardActions';
-import IconButton from '@material-ui/core/IconButton';
-import moment from 'moment';
+// components
+import Snshandle from '../../atoms/Snshandle/index';
+import TwitterLink from '../../atoms/TwitterLink/index';
+import ConfirmDialogCheckIn from '../../organisms/ConfirmDialogCheckIn/index';
 
-import theme from '../../theme';
-import config from '../../config';
-import '../../index.css'
+import theme from '../../../theme';
+import config from '../../../config';
+import '../../../index.css'
 
-import ConfirmDialogCheckIn from '../CheckIn/ConfirmDialogCheckIn';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -106,40 +106,25 @@ const Post = () => {
     <>
       <Container maxWidth="lg" className={classes.container}>
         {postData && imgFromS3
-            ? (<div className={classes.comment}>
-              <img
-                className={classes.media} 
-                src={`data:img/jpg;base64,${imgFromS3}`} 
-                alt="post" 
-              />
-              <Typography variant="h6" component="div">#{postData.pref.id} {postData.pref.nameJP}</Typography>
-              {!postData.snshandle
-                  ? <Typography variant="h6" color="textSecondary" component="div">{moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author}</Typography>
-                  : postData.snshandle[0] === "@" 
-                    ? (<Typography variant="h6" color="textSecondary" component="div">
-                      {moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author} (
-                        <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >{postData.snshandle}</Link>)
-                      </Typography>)
-                    : (<Typography variant="h6" color="textSecondary" component="div">
-                    {moment(postData.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {postData.author} (
-                      <Link href={"https://twitter.com/" + postData.snshandle} target="_about"  style={{ color: "#1DA1F2" }} >@{postData.snshandle}</Link>)
-                    </Typography>)
-                }
-              {postData.comments
-                ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
-                : <></>
-              }
-              <CardActions id="iconWrap">
-                <IconButton aria-label="share" className="buttonItem">
-                  <a href={"https://twitter.com/share?url=https://sbux-47pref.surge.sh/posts/" + postData.id + "%0a%0a&text=" + postData.pref.drink + "%0a&hashtags=STARBUCKS,47JIMOTOフラペチーノ"} target="_about">
-                    <TwitterIcon style={{ color: "#1DA1F2" }} />
-                  </a>
-                </IconButton>
-                <Button variant="contained" onClick={handleDelete} className={`buttonItem ${classes.deleteButton}`}>削除</Button>
-              </CardActions>
-            </div>)
-            : <></>
-          }
+          ? (<div className={classes.comment}>
+            <img
+              className={classes.media} 
+              src={`data:img/jpg;base64,${imgFromS3}`} 
+              alt="post" 
+            />
+            <Typography variant="h6" component="div">#{postData.pref.id} {postData.pref.nameJP}</Typography>
+            <Snshandle post={postData}/>
+            {postData.comments
+              ? <Typography style={{ wordWrap: 'break-word' }} variant="body1">{postData.comments}</Typography>
+              : <></>
+            }
+            <CardActions id="iconWrap">
+              <TwitterLink post={postData} />
+              <Button variant="contained" onClick={handleDelete} className={`buttonItem ${classes.deleteButton}`}>削除</Button>
+            </CardActions>
+          </div>)
+          : <></>
+        }
       </Container>
       <ConfirmDialogCheckIn 
         isConfirmOpen={isConfirmOpen}

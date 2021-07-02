@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom';
-import About from './About/About';
-import CheckIn from './CheckIn/CheckIn';
-import Prefs from './Prefs/Prefs';
-import Pref from './Pref/Pref';
-import Post from './Post/Post';
-import theme from '../theme';
-
+// material-ui
 import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
+import IconButton from '@material-ui/core/IconButton';
+import InfoIcon from '@material-ui/icons/Info';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import LocalCafeIcon from '@material-ui/icons/LocalCafe';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import InfoIcon from '@material-ui/icons/Info';
-import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import StarIcon from '@material-ui/icons/Star';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+// components
+import About from './pages/About';
+import Posts from './pages/Posts';
+import Post from './pages/Post';
+import PrefList from './pages/PrefList';
+import Pref from './pages/Pref';
+import theme from '../theme';
 
 const useStyles = makeStyles({
   list: {
@@ -104,9 +105,9 @@ const Header = () => {
       </AppBar>
       <main>
         <Switch>
-          <Route exact path="/" render={() => <Prefs />} />
+          <Route exact path="/" render={() => <PrefList />} />
           <Route path="/posts/:id" render={() => <Post />} />
-          <Route path="/posts" render={() => <CheckIn />} />
+          <Route path="/posts" render={() => <Posts />} />
           <Route path="/pref/:id" render={() => <Pref />} />
           <Route path="/about" render={() => <About />} />
         </Switch>

@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import moment from 'moment';
+// material-ui
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import moment from 'moment';
+// components
+import InputDialogCheckIn from '../../organisms/InputDialogCheckIn/index';
 
-import theme from '../../theme';
-import config from '../../config';
-import '../../index.css'
-
-import InputDialogCheckIn from '../CheckIn/InputDialogCheckIn';
+import theme from '../../../theme';
+import config from '../../../config';
+import '../../../index.css'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -35,9 +36,6 @@ const useStyles = makeStyles(() => ({
   container: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-  },
-  drink: {
-    marginBottom: 10,
   },
   media: {
     height: 300,
@@ -76,63 +74,52 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const Pref = () => {
+const Posts = () => {
   const [postData, setPostData] = useState([]);
-  const [slectedPref, setSlectedPref] = useState("");
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
-  const [isExist, setIsExist] = useState("init");
   const classes = useStyles();
-  const { id } = useParams();
 
   // 投稿データ取得
   const getImgFromS3 = async () => {
     if (hasMore) {
-      const host = config[process.env.NODE_ENV].host;
-      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + `/posts/pref/${id}` : `/posts/pref/${id}`;
+      const host = config[process.env.NODE_ENV].host
+      const url = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       let info = [];
-      setLoading(true)
-      const posts = await fetch(`${prefDataUrl}?offset=${offset}`)
-        .then(res => res.json())
-      info = posts.data;
-
-      // 該当の都道府県データ(posts.data) が 0件の時の考慮
-      if (posts.data.length === 0) {
-        setIsExist(false)
-        setHasMore(false);
-        setLoading(false)
-      } else {
-        setPostData([...postData, ...posts.data]);
-        setSlectedPref(posts.data[0].pref)
-        setHasMore(posts.has_more);
-        setOffset(offset + 9);
-        setLoading(false)
   
-        const getImgUrl = "/image";
-        // 画像リストにある画像を取得
-        if(info.length > 0) {
-          setLoading(true)
-          const base64Arr = await Promise.all(
-            info.map((data) => {
-              if(data.image) {
-                const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
-                return fetch(url)
-                  .then(res => res.json())
-                  .then(img => img.data)
-                  .catch(err => console.log(err))
-              } else {
-                return "";
-              }
-            })
-          ).finally(() => setLoading(false));
-          setImgFromS3([...imgFromS3, ...base64Arr]);
-        }
-        setIsExist(true)
+      setLoading(true)
+      const posts = await fetch(`${url}?offset=${offset}`)
+        .then(res => res.json())
+        .then(data => data);
+      info = posts.data;
+      
+      setPostData([...postData, ...posts.data]);
+      setHasMore(posts.has_more);
+      setOffset(offset + 9);
+      setLoading(false)
+  
+      const getImgUrl = "/image";
+      // 画像リストにある画像を取得
+      if(info.length > 0) {
+        setLoading(true)
+        const base64Arr = await Promise.all(
+          info.map((data) => {
+            if(data.image) {
+              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
+              return fetch(url)
+                .then(res => res.json())
+                .then(img => img.data)
+                .catch(err => console.log(err))
+            } else {
+              return "";
+            }
+          })
+        ).finally(() => setLoading(false));
+        setImgFromS3([...imgFromS3, ...base64Arr]);
       }
-
     }
   }
 
@@ -149,11 +136,7 @@ const Pref = () => {
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
-      {!isExist
-        ? <Typography variant="h3" component="h3">選択した都道府県の画像は存在しません。</Typography>
-        : <Typography variant="h5" component="h5" className={classes.drink}>#{id} {slectedPref.drink}</Typography>
-      }
-      <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
+        <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
         <div className="wrapCard">
           {postData.length > 0
             ? postData.map((post, id) => {
@@ -173,6 +156,7 @@ const Pref = () => {
                   }
                 </CardActionArea>
                 <CardContent>
+                  <Typography variant="button" component="div">#{post.pref.id} {post.pref.name}</Typography>
                   <Typography variant="body2" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {post.author}</Typography>
                   {post.comments
                     ? <Typography style={{ wordWrap: 'break-word' }} variant="body2">{post.comments}</Typography>
@@ -183,19 +167,16 @@ const Pref = () => {
             }) : <></>
           }
         </div>
-        {!isExist
-          ? <></>
-          : (<div className={classes.footer} >
-              <Button
-                disabled={!hasMore}
-                size="large"
-                className={classes.footerBtn}
-                variant="contained"
-                color="secondary"
-                onClick={() => doLoadMorePost()}
-              >もっとみる</Button>
-            </div>)
-        }
+        <div className={classes.footer} >
+          <Button
+            disabled={!hasMore}
+            size="large"
+            className={classes.footerBtn}
+            variant="contained"
+            color="secondary"
+            onClick={() => doLoadMorePost()}
+          >もっとみる</Button>
+        </div>
       </Container>
       <InputDialogCheckIn 
         open={open}
@@ -212,4 +193,4 @@ const Pref = () => {
   );
 }
 
-export default Pref;
+export default Posts;
