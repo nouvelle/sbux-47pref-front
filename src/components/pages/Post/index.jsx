@@ -62,6 +62,7 @@ const Post = () => {
   const [imgFromS3, setImgFromS3] = useState();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [isExist, setIsExist] = useState("init");
   const classes = useStyles();
   const { id } = useParams();
 
@@ -76,6 +77,11 @@ const Post = () => {
       return await fetch(url)
         .then(res => res.json())
         .then(data => {
+          if(data.id) {
+            setIsExist(true)
+          } else {
+            setIsExist(false)
+          }
           setPostData(data)
           return data
         })
@@ -105,6 +111,10 @@ const Post = () => {
   return (
     <>
       <Container maxWidth="lg" className={classes.container}>
+        {!isExist
+          ? <Typography variant="h3" component="h3">選択した投稿は存在しません。</Typography>
+          : <></>
+        }
         {postData && imgFromS3
           ? (<div className={classes.comment}>
             <img
