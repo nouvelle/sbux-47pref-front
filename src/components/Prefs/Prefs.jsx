@@ -63,6 +63,10 @@ const useStyles = makeStyles(() => ({
   content: {
     padding: "5px !important",
   },
+  count: {
+    fontSize: 12,
+    color: "#333",
+  },
   backdrop: {
     zIndex: '1500 !important',
   }
@@ -124,7 +128,7 @@ const Prefs = () => {
               }
             </CardActionArea>
             <CardContent className={classes.content}>
-              <div variant="button" component="div">#{pref.id} {pref.nameJP}</div>
+              <div variant="button" component="div">#{pref.id} {pref.nameJP} <span className={classes.count}>{`(${pref.posts_num}件)`}</span></div>
             </CardContent>
           </Card>)
         })
