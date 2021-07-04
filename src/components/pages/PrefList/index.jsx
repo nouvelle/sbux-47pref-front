@@ -41,7 +41,16 @@ const useStyles = makeStyles(() => ({
     paddingBottom: theme.spacing(2),
   },
   media: {
+    width: '100%',
     height: 150,
+  },
+  progressWrap: {
+    height: 150,
+  },
+  progress: {
+    position: "absolute",
+    top: "40%",
+    left: "40%",
   },
   link: {
     textDecoration: "none",
@@ -78,12 +87,14 @@ const PrefList = () => {
   const [selectedPref, setSelectedPref] = useState();
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [imgFromS3, setImgFromS3] = useState({})
   const classes = useStyles();
 
   useEffect(() => {
     const getData = async () => {
       const host = config[process.env.NODE_ENV].host;
-      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
+      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/num" : "/pref/post/num";
       setLoading(true)
       await fetch(prefDataUrl)
         .then(res => res.json())
@@ -94,11 +105,44 @@ const PrefList = () => {
     getData();
   }, []);
 
+  useEffect(() => {
+    const getImg = async () => {
+    if (!prefList) return;
+    
+    let newObj = {};
+      for (const pref of prefList) {
+        if (pref.posts_num > 0) {
+          // 投稿データの中で最新の updated_at を取得
+          const maxUnixTime = Math.max.apply(null, pref.posts.map((post) => new Date(post.updated_at)));
+          const latestData = pref.posts.filter((post) => new Date(post.updated_at).getTime() === maxUnixTime);
+          
+          // 画像データをS3から取得する
+          if (Object.keys(imgFromS3).length === 0 && latestData[0].image) {
+            // 画像リストにある画像を取得
+            const host = config[process.env.NODE_ENV].host;
+            const getImgUrl = "/image";
+            const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${latestData[0].image}` : `${getImgUrl}/${latestData[0].image}`;
+            const base64Img = await fetch(url)
+              .then(res => res.json())
+              .then(img => img.data)
+              .catch(err => console.log(err))
+            
+            newObj = { ...newObj, [pref.id] : base64Img };
+          }
+        }
+      }
+      setImgFromS3(newObj);
+      setLoaded(true);
+    }
+    getImg();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefList]);
+
   const handleAddPost = (pref) => {
     setSelectedPref(pref)
     setOpen(true)
   }
-
+  
   return (
     <>
     <Container maxWidth="lg" className={classes.container}>
@@ -108,13 +152,21 @@ const PrefList = () => {
           return (<Card key={pref.id} className={classes.root}>
             <CardActionArea>
               {pref.is_post 
-                ? (<Link to={`/pref/${pref.id}`}>
-                    <CardMedia
-                      className={classes.media}
-                      image={`data:img/jpg;base64,${pref.s3Image.data}`}
-                      title={pref.drink}
-                    />
-                  </Link>)
+                ? <>
+                  {loaded 
+                    ? (<Link to={`/pref/${pref.id}`}>
+                      <CardMedia
+                        className={classes.media}
+                        image={`data:img/jpg;base64,${imgFromS3[pref.id]}`}
+                        title={pref.drink}
+                      />
+                    </Link>)
+                    : (
+                      <div className={classes.progressWrap}>
+                        <CircularProgress className={classes.progress} color="secondary" />
+                      </div>
+                    )}
+                </>
                 :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
                       <Typography variant="body2" color="textSecondary" className={classes.noImgText}>Please Post!</Typography>
                       {imgId === 0 
