@@ -161,11 +161,11 @@ const PrefList = () => {
                         title={pref.drink}
                       />
                     </Link>)
-                    : (
-                      <div className={classes.progressWrap}>
-                        <CircularProgress className={classes.progress} color="secondary" />
-                      </div>
-                    )}
+                    : (<Link to={`/pref/${pref.id}`}>
+                        <div className={classes.progressWrap}>
+                          <CircularProgress className={classes.progress} color="secondary" />
+                        </div>
+                      </Link>)}
                 </>
                 :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
                       <Typography variant="body2" color="textSecondary" className={classes.noImgText}>Please Post!</Typography>
