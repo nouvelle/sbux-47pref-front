@@ -2,7 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from "react-router-dom";
 // material-ui
+import AddIcon from '@material-ui/icons/Add';
 import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
@@ -13,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 // components
 import { PrefListContext } from '../../../App';
 import InputDialogPrefCheckIn from '../../organisms/InputDialogPrefCheckIn/index';
+import InputDialogCheckIn from '../../organisms/InputDialogCheckIn/index';
 
 import theme from '../../../theme';
 import config from '../../../config';
@@ -80,12 +83,26 @@ const useStyles = makeStyles(() => ({
   },
   backdrop: {
     zIndex: '1500 !important',
-  }
+  },
+  addBtn: {  
+    width: 60,
+    height: 60,
+    margin: "20px auto",
+    display: "flex",
+    position: "fixed",
+    right: 10,
+    bottom: 0,
+    borderRadius: 50,
+    background: theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
+    zIndex: 3,
+  },
 }));
 
 const PrefList = () => {
   const [selectedPref, setSelectedPref] = useState();
   const [open, setOpen] = useState(false)
+  const [openPref, setOpenPref] = useState(false)
   const [loading, setLoading] = useState(false);
   const { isNeedGetLatestImageList, setIsNeedGetLatestImageList, prefList, setPrefList, imgFromS3, setImgFromS3 } = useContext(PrefListContext);
   const classes = useStyles();
@@ -170,7 +187,7 @@ const PrefList = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefList]);
 
-const postedPrefCard = (pref) => {
+  const postedPrefCard = (pref) => {
     if (imgFromS3[pref.id] && imgFromS3[pref.id]['img']) {
       return (<Link to={`/pref/${pref.id}`}>
         <CardMedia
@@ -190,11 +207,12 @@ const postedPrefCard = (pref) => {
 
   const handleAddPost = (pref) => {
     setSelectedPref(pref)
-    setOpen(true)
+    setOpenPref(true)
   }
   
   return (
     <>
+    <Button className={classes.addBtn} variant="outlined" onClick={() => setOpen(true)}><AddIcon /></Button>
     <Container maxWidth="lg" className={classes.container}>
       {prefList && prefList.length > 0
         ? prefList.map(pref => {
@@ -224,11 +242,20 @@ const postedPrefCard = (pref) => {
         : <></>
       }
       <InputDialogPrefCheckIn 
+        open={openPref}
+        setOpen={setOpenPref}
+        setSelectedPref={setSelectedPref}
+        selectedPref={selectedPref}
+        // setPrefList={setPrefList}
+      />
+      <InputDialogCheckIn 
         open={open}
         setOpen={setOpen}
         setSelectedPref={setSelectedPref}
-        selectedPref={selectedPref}
-        setPrefList={setPrefList}
+        // setPostData={setPostData}
+        // setImgFromS3={setImgFromS3}
+        // setHasMore={setHasMore}
+        // setOffset={setOffset}
       />
       </Container>
       <Backdrop className={classes.backdrop} open={loading}>

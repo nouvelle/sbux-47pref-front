@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
 const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
 
 const InputDialogCheckIn = withRouter((props) => {
-  const [prefList, setPrefList] = useState([]);
+  const [prefNameList, setPrefNameList] = useState([]);
   const [selectedPref, setSelectedPref] = useState(null);
   const [formData, setFormData] = useState();
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ const InputDialogCheckIn = withRouter((props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
-  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
+  const { _, setIsNeedGetLatestImageList, prefList, setPrefList } = useContext(PrefListContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();
@@ -71,7 +71,7 @@ const InputDialogCheckIn = withRouter((props) => {
       setLoading(true)
       await fetch(prefDataUrl)
         .then(res => res.json())
-        .then(data => setPrefList(data))
+        .then(data => setPrefNameList(data))
         .finally(() => setLoading(false));
     }
 
@@ -80,7 +80,7 @@ const InputDialogCheckIn = withRouter((props) => {
 
   // 都道府県選択
   const handlePrefChange = (pref) => {
-    for (const prefObj of prefList) {
+    for (const prefObj of prefNameList) {
       if (prefObj.nameJP === pref.target.innerText) setSelectedPref(prefObj);
     }
   };
@@ -176,6 +176,9 @@ const InputDialogCheckIn = withRouter((props) => {
       // 訪問記録を POST
       const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       
+      // 都道府県の投稿情報を再度取得し、再描画
+    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
+
       setLoading(true);
       // 訪問記録を POST
       await fetch(postUrl, {
@@ -192,6 +195,10 @@ const InputDialogCheckIn = withRouter((props) => {
         }) 
       })
       .then(() => setIsNeedGetLatestImageList({ state: "add", pref: selectedPref["id"], image: imgData }))
+      // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
+      .then(() => fetch(prefDataUrl))
+      .then(res => res.json())
+      .then(data => setPrefList(data))
       .catch(err => console.log("err :", err))
       .finally(() => {
         setLoading(false)
@@ -209,7 +216,7 @@ const InputDialogCheckIn = withRouter((props) => {
   const makePrefSelect = () => (
     <Autocomplete
       id="pref-select"
-      options={prefList}
+      options={prefNameList}
       getOptionLabel={(pref) => pref["nameJP"]}
       style={{ width: 120 }}
       renderInput={(params) => <TextField {...params} label="都道府県" />}

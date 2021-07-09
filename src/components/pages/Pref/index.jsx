@@ -197,10 +197,10 @@ const Pref = () => {
       <InputDialogCheckIn 
         open={open}
         setOpen={setOpen}
-        setPostData={setPostData}
-        setImgFromS3={setImgFromS3}
-        setHasMore={setHasMore}
-        setOffset={setOffset}
+        // setPostData={setPostData}
+        // setImgFromS3={setImgFromS3}
+        // setHasMore={setHasMore}
+        // setOffset={setOffset}
       />
       <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress color="secondary" />

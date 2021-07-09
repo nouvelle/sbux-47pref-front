@@ -45,7 +45,7 @@ const InputDialogPrefCheckIn = (props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
-  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
+  const { _, setIsNeedGetLatestImageList, prefList, setPrefList } = useContext(PrefListContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();
@@ -163,7 +163,7 @@ const InputDialogPrefCheckIn = (props) => {
     // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
     .then(() => fetch(prefDataUrl))
     .then(res => res.json())
-    .then(data => props.setPrefList(data))
+    .then(data => setPrefList(data))
     .catch(err => console.log("err :", err))
     .finally(() => {
       setLoading(false)
@@ -187,7 +187,7 @@ const InputDialogPrefCheckIn = (props) => {
             <Typography variant="subtitle1" className={classes.drinkName}>{props.selectedPref ? props.selectedPref.drink : ''}</Typography>
             <TextField
               margin="dense"
-              id="author"
+              id="author1"
               label="ニックネーム (10文字まで)"
               type="text"
               inputRef={inputAuthorRef}
@@ -196,7 +196,7 @@ const InputDialogPrefCheckIn = (props) => {
             />
             <TextField
               margin="dense"
-              id="secretKey"
+              id="secretKey1"
               label="シークレットキー (任意・10文字まで)"
               type="text"
               inputRef={inputSecretkeyRef}
@@ -206,7 +206,7 @@ const InputDialogPrefCheckIn = (props) => {
             <Typography variant="caption" color="textSecondary">※ 画像削除時に使用します</Typography>
             <TextField
               margin="dense"
-              id="twitter"
+              id="twitter1"
               label="Twitterハンドル名 (任意)"
               type="text"
               inputRef={inputTwitterRef}
@@ -216,7 +216,7 @@ const InputDialogPrefCheckIn = (props) => {
             <Typography variant="caption" color="textSecondary">※ 入力いただければ Twitterページへのリンクを追加します</Typography>
             <TextField
               margin="dense"
-              id="comment"
+              id="comment1"
               label="コメント (任意・100文字まで)"
               type="text"
               inputRef={inputCommentRef}
