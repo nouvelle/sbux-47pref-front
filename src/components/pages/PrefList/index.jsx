@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from "react-router-dom";
 // material-ui
@@ -11,6 +11,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 // components
+import { PrefListContext } from '../../../App';
 import InputDialogPrefCheckIn from '../../organisms/InputDialogPrefCheckIn/index';
 
 import theme from '../../../theme';
@@ -83,12 +84,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 const PrefList = () => {
-  const [prefList, setPrefList] = useState();
   const [selectedPref, setSelectedPref] = useState();
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [imgFromS3, setImgFromS3] = useState({})
+  const { isNeedGetLatestImageList, setIsNeedGetLatestImageList, prefList, setPrefList, imgFromS3, setImgFromS3 } = useContext(PrefListContext);
   const classes = useStyles();
 
   useEffect(() => {
@@ -107,36 +106,87 @@ const PrefList = () => {
 
   useEffect(() => {
     const getImg = async () => {
-    if (!prefList) return;
-    
-    let newObj = {};
-      for (const pref of prefList) {
-        if (pref.posts_num > 0) {
-          // 投稿データの中で最新の updated_at を取得
-          const maxUnixTime = Math.max.apply(null, pref.posts.map((post) => new Date(post.updated_at)));
-          const latestData = pref.posts.filter((post) => new Date(post.updated_at).getTime() === maxUnixTime);
+      if (!prefList) return;
+      
+      let newObj = {};
+
+      const host = config[process.env.NODE_ENV].host;
+      const getImgUrl = "/image";
+        // 画像データをS3から取得する
+        if (isNeedGetLatestImageList.state === "all") {
+          for (const pref of prefList) {
+            if (pref.posts_num > 0) {
+              // 投稿データの中で最新の updated_at を取得
+              const maxUnixTime = Math.max.apply(null, pref.posts.map((post) => new Date(post.updated_at)));
+              const latestData = pref.posts.filter((post) => new Date(post.updated_at).getTime() === maxUnixTime);
+              // 画像リストにある画像を取得
+              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${latestData[0].image}` : `${getImgUrl}/${latestData[0].image}`;
+              const base64Img = await fetch(url)
+                .then(res => res.json())
+                .then(img => img.data)
+                .catch(err => console.log(err))
+              newObj = { ...newObj, [pref.id] : { img: base64Img, file: pref.posts[0].image } };
+              setImgFromS3(newObj);
+            }
+          }
+        } else if (isNeedGetLatestImageList.state === "add") {
+          console.log("ADD: isNeedGetLatestImageList.pref", isNeedGetLatestImageList.pref)
+          const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${isNeedGetLatestImageList.image}` : `${getImgUrl}/${isNeedGetLatestImageList.image}`;
+          const base64Img = await fetch(url)
+            .then(res => res.json())
+            .then(img => img.data)
+            .catch(err => console.log(err))
+            setImgFromS3({ ...imgFromS3, [prefList[isNeedGetLatestImageList.pref - 1]['id']] : { img: base64Img, file: isNeedGetLatestImageList.image }});
+        } else if (isNeedGetLatestImageList.state === "del") {
+          console.log("DEL: isNeedGetLatestImageList.pref", isNeedGetLatestImageList.pref)
+          const prefDataUrl = (process.env.NODE_ENV === "production") ? host + `/pref/${isNeedGetLatestImageList.pref}` : `/pref/${isNeedGetLatestImageList.pref}`;
+          setLoading(true)
+          const delPrefData = await fetch(prefDataUrl)
+            .then(res => res.json())
+            .finally(() => setLoading(false));
           
-          // 画像データをS3から取得する
-          if (Object.keys(imgFromS3).length === 0 && latestData[0].image) {
-            // 画像リストにある画像を取得
-            const host = config[process.env.NODE_ENV].host;
-            const getImgUrl = "/image";
+          // 投稿データの中で最新の updated_at を取得
+          const maxUnixTime = Math.max.apply(null, delPrefData.posts.map((post) => new Date(post.updated_at)));
+          const latestData = delPrefData.posts.filter((post) => new Date(post.updated_at).getTime() === maxUnixTime);
+          console.log("latestData", latestData)
+
+          if (latestData.length > 0) {
+            console.log("yes")
             const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${latestData[0].image}` : `${getImgUrl}/${latestData[0].image}`;
             const base64Img = await fetch(url)
               .then(res => res.json())
               .then(img => img.data)
               .catch(err => console.log(err))
-            
-            newObj = { ...newObj, [pref.id] : base64Img };
+            setImgFromS3({ ...imgFromS3, [isNeedGetLatestImageList.pref] : { img: base64Img, file: latestData[0].image }});
+          } else {
+            console.log("no")
           }
         }
-      }
-      setImgFromS3(newObj);
-      setLoaded(true);
+        setIsNeedGetLatestImageList({ state: "done", pref: "", image: "" })
+      
     }
+
     getImg();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefList]);
+
+const postedPrefCard = (pref) => {
+    if (imgFromS3[pref.id] && imgFromS3[pref.id]['img']) {
+      return (<Link to={`/pref/${pref.id}`}>
+        <CardMedia
+          className={classes.media}
+          image={`data:img/jpg;base64,${imgFromS3[pref.id]['img']}`}
+          title={pref.drink}
+        />
+      </Link>)
+    } else {
+      return (<Link to={`/pref/${pref.id}`}>
+        <div className={classes.progressWrap}>
+          <CircularProgress className={classes.progress} color="secondary" />
+        </div>
+      </Link>)
+    }
+  }
 
   const handleAddPost = (pref) => {
     setSelectedPref(pref)
@@ -152,21 +202,7 @@ const PrefList = () => {
           return (<Card key={pref.id} className={classes.root}>
             <CardActionArea>
               {pref.is_post 
-                ? <>
-                  {loaded 
-                    ? (<Link to={`/pref/${pref.id}`}>
-                      <CardMedia
-                        className={classes.media}
-                        image={`data:img/jpg;base64,${imgFromS3[pref.id]}`}
-                        title={pref.drink}
-                      />
-                    </Link>)
-                    : (<Link to={`/pref/${pref.id}`}>
-                        <div className={classes.progressWrap}>
-                          <CircularProgress className={classes.progress} color="secondary" />
-                        </div>
-                      </Link>)}
-                </>
+                ? <>{postedPrefCard(pref)}</>
                 :  (<div onClick={() => handleAddPost(pref)} className={classes.link}>
                       <Typography variant="body2" color="textSecondary" className={classes.noImgText}>Please Post!</Typography>
                       {imgId === 0 

@@ -1,5 +1,5 @@
 import 'date-fns';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import Compressor from 'compressorjs';
 import DateFnsUtils from '@date-io/date-fns';
 // material-ui
@@ -17,6 +17,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
+import { PrefListContext } from '../../../App';
 import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -44,6 +45,7 @@ const InputDialogPrefCheckIn = (props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
+  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();
@@ -76,7 +78,7 @@ const InputDialogPrefCheckIn = (props) => {
 
       // compressorjs を使って、画像ファイルを圧縮
       new Compressor(file, {
-        quality: 0.3,
+        quality: 0.25,
         success(result) {
           // プレビュー用の画像を設定
           const imgSrc = createObjectURL(result);
@@ -157,6 +159,7 @@ const InputDialogPrefCheckIn = (props) => {
         "image": imgData
       }) 
     })
+    .then(() => setIsNeedGetLatestImageList({ state: "add", pref: props.selectedPref.id, image: imgData }))
     // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
     .then(() => fetch(prefDataUrl))
     .then(res => res.json())

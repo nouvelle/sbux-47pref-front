@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { withRouter } from "react-router-dom";
 // material-ui
 import { makeStyles } from '@material-ui/core/styles';
@@ -12,6 +12,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
+import { PrefListContext } from '../../../App';
 import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -43,6 +44,7 @@ const ConfirmDialogCheckIn = withRouter((props) => {
   const [loading, setLoading] = useState(false);
   const [isSecretKey, setIsSecretKey] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
   const inputSecretkeyRef = useRef();
   const classes = useStyles();
 
@@ -108,6 +110,7 @@ const ConfirmDialogCheckIn = withRouter((props) => {
       }) 
     })
     .then(res => res.json())
+    .then(() => setIsNeedGetLatestImageList({ state: "del", pref: props.postData.pref.id, image: "" }))
     .catch(err => console.log("Error :", err))
     .finally(() => setLoading(false));
 

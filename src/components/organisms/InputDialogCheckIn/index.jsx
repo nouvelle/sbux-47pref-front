@@ -1,5 +1,5 @@
 import 'date-fns';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { withRouter } from "react-router-dom";
 import Compressor from 'compressorjs';
 import DateFnsUtils from '@date-io/date-fns';
@@ -19,6 +19,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
+import { PrefListContext } from '../../../App';
 import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -54,6 +55,7 @@ const InputDialogCheckIn = withRouter((props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
+  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();
@@ -108,7 +110,7 @@ const InputDialogCheckIn = withRouter((props) => {
 
       // compressorjs を使って、画像ファイルを圧縮
       new Compressor(file, {
-        quality: 0.3,
+        quality: 0.25,
         success(result) {
           // プレビュー用の画像を設定
           const imgSrc = createObjectURL(result);
@@ -189,6 +191,7 @@ const InputDialogCheckIn = withRouter((props) => {
           "image": imgData
         }) 
       })
+      .then(() => setIsNeedGetLatestImageList({ state: "add", pref: selectedPref["id"], image: imgData }))
       .catch(err => console.log("err :", err))
       .finally(() => {
         setLoading(false)

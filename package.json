@@ -25,7 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "react-scripts build && cp build/index.html build/200.html && surge build sbux-47pref.surge.sh"
+    "deploy": "react-scripts build && cp build/index.html build/200.html && surge build sbux-47pref.surge.sh",
+    "deploy_dev": "react-scripts build && cp build/index.html build/200.html && surge build sbux-47pref-dev.surge.sh"
   },
   "proxy": "http://localhost:5001",
   "eslintConfig": {
