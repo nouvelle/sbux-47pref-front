@@ -8,8 +8,7 @@ body {
   flex-wrap: wrap;
 }
 .wrapPreview {
-  display: flex;
-  padding: 5px 0;
+  text-align: center;
 }
 .preview {
   width: 100%;
