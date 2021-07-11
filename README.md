@@ -5,7 +5,7 @@
 
 # このリポジトリについて / About
 2021年6月30日から8月3日までの期間限定で始まった [STARBUCKS JAPAN 47JIMOTO フラペチーノ](https://www.starbucks.co.jp/cafe/jimoto_frappuccino/)  
-このフラペチーノの画像を投稿する **サイトのフロントエンド** のリポジトリです。  
+このフラペチーノの画像を投稿するサイトの **フロントエンド** のリポジトリです。  
 
 ▶️ 管理用メインリポジトリは [こちら](https://github.com/nouvelle/sbux-47pref)  
 ▶️ バックエンドは [こちら](https://github.com/nouvelle/sbux-47pref-back)  
