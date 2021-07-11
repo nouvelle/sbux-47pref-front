@@ -50,7 +50,7 @@ $ npm run start
 みなさんからの Issues & Pull requests 大歓迎です！ 😊
 
 ## Issue レポート
-バグ報告、新規機能の要望やご提案など、[当リポジトリの Issuee](https://github.com/nouvelle/sbux-47pref-front/issues) をご活用ください。
+バグ報告、新規機能の要望やご提案など、[当リポジトリの Issues](https://github.com/nouvelle/sbux-47pref-front/issues) をご活用ください。
 
 ## Pull Request(PR)
 PR は、個別のブランチを切って作業してください。原則、PRは main ブランチを対象としてください。
