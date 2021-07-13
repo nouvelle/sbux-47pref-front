@@ -14,6 +14,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 // components
+import Snshandle from '../../atoms/Snshandle/index';
 import InputDialogCheckIn from '../../organisms/InputDialogCheckIn/index';
 
 import theme from '../../../theme';
@@ -157,7 +158,7 @@ const Posts = () => {
                 </CardActionArea>
                 <CardContent>
                   <Typography variant="button" component="div">#{post.pref.id} {post.pref.name}</Typography>
-                  <Typography variant="body2" color="textSecondary" component="div">{moment(post.updated_at).format('YYYY/MM/DD ddd HH:mm')} by {post.author}</Typography>
+                  <Snshandle post={post}/>
                   {post.comments
                     ? <Typography style={{ wordWrap: 'break-word' }} variant="body2">{post.comments}</Typography>
                     : <></>

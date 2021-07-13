@@ -175,6 +175,10 @@ const Pref = () => {
                 </CardActionArea>
                 <CardContent>
                   <Snshandle post={post}/>
+                  {post.comments
+                    ? <Typography style={{ wordWrap: 'break-word' }} variant="body2">{post.comments}</Typography>
+                    : <></>
+                  }
                 </CardContent>
               </Card>)
             }) : <></>
