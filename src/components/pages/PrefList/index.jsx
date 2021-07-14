@@ -191,15 +191,11 @@ const PrefList = () => {
   }, [prefList]);
 
   const postedPrefCard = (pref) => {
-    // console.log("pref.id", pref.id)
-    // console.log("prefList", prefList[pref.id-1])
     if (imgFromS3[pref.id] && imgFromS3[pref.id]['img']) {
-    // if (prefList) {
       return (<Link to={`/pref/${pref.id}`}>
         <CardMedia
           className={classes.media}
           image={`data:img/jpg;base64,${imgFromS3[pref.id]['img']}`}
-          // image={`data:img/jpg;base64,${prefList[pref.id-1]['s3Image']['data']}`}
           title={pref.drink}
         />
       </Link>)
