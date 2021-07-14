@@ -142,7 +142,7 @@ const InputDialogPrefCheckIn = (props) => {
     const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
     
     // 都道府県の投稿情報を再度取得し、再描画
-    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/latest" : "/pref/post/latest";
+    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/num" : "/pref/post/num";
 
     setLoading(true);
     // 訪問記録を POST

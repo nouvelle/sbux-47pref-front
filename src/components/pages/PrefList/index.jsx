@@ -138,12 +138,15 @@ const PrefList = () => {
               const latestData = pref.posts.filter((post) => new Date(post.updated_at).getTime() === maxUnixTime);
               // 画像リストにある画像を取得
               const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${latestData[0].image}` : `${getImgUrl}/${latestData[0].image}`;
-              const base64Img = await fetch(url)
+              fetch(url)
                 .then(res => res.json())
                 .then(img => img.data)
+                // eslint-disable-next-line no-loop-func
+                .then(data => {
+                  newObj = { ...newObj, [pref.id] : { img: data, file: pref.posts[0].image } };
+                  setImgFromS3(newObj);
+                })
                 .catch(err => console.log(err))
-              newObj = { ...newObj, [pref.id] : { img: base64Img, file: pref.posts[0].image } };
-              setImgFromS3(newObj);
             }
           }
         } else if (isNeedGetLatestImageList.state === "add") {
@@ -188,11 +191,15 @@ const PrefList = () => {
   }, [prefList]);
 
   const postedPrefCard = (pref) => {
+    // console.log("pref.id", pref.id)
+    // console.log("prefList", prefList[pref.id-1])
     if (imgFromS3[pref.id] && imgFromS3[pref.id]['img']) {
+    // if (prefList) {
       return (<Link to={`/pref/${pref.id}`}>
         <CardMedia
           className={classes.media}
           image={`data:img/jpg;base64,${imgFromS3[pref.id]['img']}`}
+          // image={`data:img/jpg;base64,${prefList[pref.id-1]['s3Image']['data']}`}
           title={pref.drink}
         />
       </Link>)
