@@ -19,7 +19,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import { PrefListContext } from '../../../App';
+import { DataContext } from '../../../App';
 import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -55,7 +55,7 @@ const InputDialogCheckIn = withRouter((props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
-  const { _, setIsNeedGetLatestImageList, prefList, setPrefList } = useContext(PrefListContext);
+  const { setIsNeedGetLatestImageList, setPrefList } = useContext(DataContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();

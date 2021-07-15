@@ -5,7 +5,7 @@ import theme from './theme';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-export const PrefListContext = createContext("");
+export const DataContext = createContext("");
 
 const App = () => {
   const [prefList, setPrefList] = useState();
@@ -15,10 +15,10 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <PrefListContext.Provider value={prefListState}>
+      <DataContext.Provider value={prefListState}>
         <Header />
         <Footer />
-      </PrefListContext.Provider>
+      </DataContext.Provider>
     </ThemeProvider>
   );
 }

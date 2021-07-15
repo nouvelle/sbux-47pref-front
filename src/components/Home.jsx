@@ -13,17 +13,17 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 // components
-import { PrefListContext } from '../../../App';
-import InputDialogPrefCheckIn from '../../organisms/InputDialogPrefCheckIn/index';
-import InputDialogCheckIn from '../../organisms/InputDialogCheckIn/index';
+import { DataContext } from '../App';
+import InputDialogPrefCheckIn from './organisms/InputDialogPrefCheckIn/index';
+import InputDialogCheckIn from './organisms/InputDialogCheckIn/index';
 
-import theme from '../../../theme';
-import config from '../../../config';
-import frap0 from '../../../assets/svg/frap0.svg';
-import frap1 from '../../../assets/svg/frap1.svg';
-import frap2 from '../../../assets/svg/frap2.svg';
-import frap3 from '../../../assets/svg/frap3.svg';
-import '../../../index.css'
+import theme from '../theme';
+import config from '../config';
+import frap0 from '../assets/svg/frap0.svg';
+import frap1 from '../assets/svg/frap1.svg';
+import frap2 from '../assets/svg/frap2.svg';
+import frap3 from '../assets/svg/frap3.svg';
+import '../index.css'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -99,12 +99,12 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const PrefList = () => {
+const Home = () => {
   const [selectedPref, setSelectedPref] = useState();
   const [open, setOpen] = useState(false)
   const [openPref, setOpenPref] = useState(false)
   const [loading, setLoading] = useState(false);
-  const { isNeedGetLatestImageList, setIsNeedGetLatestImageList, prefList, setPrefList, imgFromS3, setImgFromS3 } = useContext(PrefListContext);
+  const { isNeedGetLatestImageList, setIsNeedGetLatestImageList, prefList, setPrefList, imgFromS3, setImgFromS3 } = useContext(DataContext);
   const classes = useStyles();
 
   useEffect(() => {
@@ -119,7 +119,7 @@ const PrefList = () => {
     }
 
     getData();
-  }, []);
+  }, [setPrefList]);
 
   useEffect(() => {
     const getImg = async () => {
@@ -268,4 +268,4 @@ const PrefList = () => {
   );
 }
 
-export default PrefList;
+export default Home;

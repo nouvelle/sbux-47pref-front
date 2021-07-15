@@ -12,7 +12,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import { PrefListContext } from '../../../App';
+import { DataContext } from '../../../App';
 import config from '../../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -44,7 +44,7 @@ const ConfirmDialogCheckIn = withRouter((props) => {
   const [loading, setLoading] = useState(false);
   const [isSecretKey, setIsSecretKey] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const { _, setIsNeedGetLatestImageList } = useContext(PrefListContext);
+  const { setIsNeedGetLatestImageList } = useContext(DataContext);
   const inputSecretkeyRef = useRef();
   const classes = useStyles();
 

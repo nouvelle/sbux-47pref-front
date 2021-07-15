@@ -20,7 +20,7 @@ import Typography from '@material-ui/core/Typography';
 import About from './pages/About';
 import Posts from './pages/Posts';
 import Post from './pages/Post';
-import PrefList from './pages/PrefList';
+import Home from './Home';
 import Pref from './pages/Pref';
 import theme from '../theme';
 
@@ -105,7 +105,7 @@ const Header = () => {
       </AppBar>
       <main>
         <Switch>
-          <Route exact path="/" render={() => <PrefList />} />
+          <Route exact path="/" render={() => <Home />} />
           <Route path="/posts/:id" render={() => <Post />} />
           <Route path="/posts" render={() => <Posts />} />
           <Route path="/pref/:id" render={() => <Pref />} />
