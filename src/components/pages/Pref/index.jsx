@@ -43,6 +43,14 @@ const useStyles = makeStyles(() => ({
   media: {
     height: 300,
   },
+  progressWrap: {
+    height: 150,
+  },
+  progress: {
+    position: "absolute",
+    top: "40%",
+    left: "40%",
+  },
   norFound: {
     height: 300,
     background: theme.palette.primary.main,
@@ -83,6 +91,7 @@ const Pref = () => {
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const [isExist, setIsExist] = useState("init");
@@ -94,11 +103,11 @@ const Pref = () => {
     if (hasMore) {
       const host = config[process.env.NODE_ENV].host;
       const prefDataUrl = (process.env.NODE_ENV === "production") ? host + `/posts/pref/${id}` : `/posts/pref/${id}`;
-      let info = [];
+      let postInfo = [];
       setLoading(true)
       const posts = await fetch(`${prefDataUrl}?offset=${offset}`)
         .then(res => res.json())
-      info = posts.data;
+      postInfo = posts.data;
 
       // 該当の都道府県データ(posts.data) が 0件の時の考慮
       if (posts.data.length === 0) {
@@ -113,23 +122,24 @@ const Pref = () => {
         setLoading(false)
   
         const getImgUrl = "/image";
+        let newImgObj = {};
+
         // 画像リストにある画像を取得
-        if(info.length > 0) {
-          setLoading(true)
-          const base64Arr = await Promise.all(
-            info.map((data) => {
-              if(data.image) {
-                const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
-                return fetch(url)
-                  .then(res => res.json())
-                  .then(img => img.data)
-                  .catch(err => console.log(err))
-              } else {
-                return "";
-              }
-            })
-          ).finally(() => setLoading(false));
-          setImgFromS3([...imgFromS3, ...base64Arr]);
+        if(postInfo.length > 0) {
+          setImgLoading(true)
+          for (const post of postInfo) {
+            if(post.image) {
+              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${post.image}` : `${getImgUrl}/${post.image}`;
+              fetch(url)
+                .then(res => res.json())
+                // eslint-disable-next-line no-loop-func
+                .then(img => {
+                  newImgObj = { ...imgFromS3, ...newImgObj, [post.id] : { img: img.data } };
+                  setImgFromS3(newImgObj)
+                })
+                .catch(err => console.log(err));
+            }
+          }
         }
         setIsExist(true)
       }
@@ -160,17 +170,21 @@ const Pref = () => {
             ? postData.map((post, id) => {
               return (<Card key={id} className={classes.root}>
                 <CardActionArea>
-                  {imgFromS3 && imgFromS3[id]
-                    ? (<Link to={`/posts/${post.id}`}>
-                        <CardMedia
-                          className={classes.media}
-                          image={`data:img/jpg;base64,${imgFromS3[id]}`}
-                          title={post["image"]}
-                        />
-                      </Link>)
-                    : loading
-                      ? <></>
+                  {imgFromS3 && imgFromS3[post.id] 
+                    ? imgFromS3[post.id]["img"]
+                      ? (<Link to={`/posts/${post.id}`}>
+                          <CardMedia
+                            className={classes.media}
+                            image={`data:img/jpg;base64,${imgFromS3[post.id]["img"]}`}
+                            title={post["image"]}
+                          />
+                        </Link>)
                       : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
+                    : imgLoading
+                      ? <div className={classes.progressWrap}>
+                          <CircularProgress className={classes.progress} color="secondary" />
+                        </div>
+                      : <></>
                   }
                 </CardActionArea>
                 <CardContent>
