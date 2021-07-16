@@ -11,7 +11,20 @@ const App = () => {
   const [prefList, setPrefList] = useState();
   const [imgFromS3, setImgFromS3] = useState({});
   const [isNeedGetLatestImageList, setIsNeedGetLatestImageList] = useState({ state: "all", pref: "", image: "" });
-  const prefListState = { isNeedGetLatestImageList, setIsNeedGetLatestImageList, prefList, setPrefList, imgFromS3, setImgFromS3 };
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertErrMsg, setAlertErrMsg] = useState("");
+  const prefListState = { 
+    isNeedGetLatestImageList,
+    setIsNeedGetLatestImageList, 
+    prefList, 
+    setPrefList, 
+    imgFromS3, 
+    setImgFromS3, 
+    alertOpen, 
+    setAlertOpen,
+    alertErrMsg,
+    setAlertErrMsg
+  };
 
   return (
     <ThemeProvider theme={theme}>

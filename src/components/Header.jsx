@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link }  from 'react-router-dom';
 // material-ui
 import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
@@ -17,12 +17,15 @@ import StarIcon from '@material-ui/icons/Star';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 // components
+import AlertCard from './atoms/Alert/index'
 import About from './pages/About';
 import Posts from './pages/Posts';
 import Post from './pages/Post';
 import Home from './Home';
 import Pref from './pages/Pref';
 import theme from '../theme';
+
+import { DataContext } from '../App';
 
 const useStyles = makeStyles({
   list: {
@@ -51,6 +54,7 @@ const useStyles = makeStyles({
 
 const Header = () => {
   const [menu, setMenu] = useState(false);
+  const { alertErrMsg } = useContext(DataContext);
   const classes = useStyles();
 
   const toggleDrawer = (open) => (e) => {
@@ -103,6 +107,7 @@ const Header = () => {
           </Typography>
         </Toolbar>
       </AppBar>
+      <AlertCard message={alertErrMsg} />
       <main>
         <Switch>
           <Route exact path="/" render={() => <Home />} />

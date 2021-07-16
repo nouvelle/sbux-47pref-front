@@ -46,6 +46,14 @@ const useStyles = makeStyles((theme) => ({
 
 const createObjectURL = (window.URL || window.webkitURL).createObjectURL;
 
+class HttpError extends Error {
+  constructor(response) {
+    super(`${response.status} for ${response.url}`);
+    this.name = 'HttpError';
+    this.response = response;
+  }
+}
+
 const InputDialogCheckIn = withRouter((props) => {
   const [prefNameList, setPrefNameList] = useState([]);
   const [selectedPref, setSelectedPref] = useState(null);
@@ -55,7 +63,7 @@ const InputDialogCheckIn = withRouter((props) => {
   const [imgName, setImgName] = useState("");
   const [now, setNow] = useState(0);
   const [errMsg, setErrMsg] = useState("");
-  const { setIsNeedGetLatestImageList, setPrefList } = useContext(DataContext);
+  const { setIsNeedGetLatestImageList, setPrefList, setAlertOpen, setAlertErrMsg } = useContext(DataContext);
   const inputImgRef = useRef();
   const inputAuthorRef = useRef();
   const inputSecretkeyRef = useRef();
@@ -164,24 +172,29 @@ const InputDialogCheckIn = withRouter((props) => {
       // S3へのアップロード
       const url = (process.env.NODE_ENV === "production") ? `${host}/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}` : `/image?prefId=${selectedPref["id"]}&date=${now}&imgData=${imgData}`;
       
-      setLoading(true);
-      await fetch(url, {
-        method: 'POST',
-        body: formData
-      })
-      // .then((res) => console.log("成功", res))
-      .catch(err => console.log("Err ", err))
-      .finally(() => setLoading(false));
-
       // 訪問記録を POST
       const postUrl = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
       
       // 都道府県の投稿情報を再度取得し、再描画
-    const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/num" : "/pref/post/num";
+      const prefDataUrl = (process.env.NODE_ENV === "production") ? host + "/pref/post/num" : "/pref/post/num";
 
       setLoading(true);
+      // S3へのアップロード
+      await fetch(url, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.status === 201) {
+          return response.json();
+        } else {
+          setAlertErrMsg("画像がアップロードできませんでした。もう一度お試しください。")
+          setAlertOpen(true);
+          throw new HttpError(response);
+        }
+      })
       // 訪問記録を POST
-      await fetch(postUrl, {
+      .then(() => fetch(postUrl, {
         method: 'POST',
         mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
@@ -193,11 +206,28 @@ const InputDialogCheckIn = withRouter((props) => {
           "pref_id": selectedPref["id"],
           "image": imgData
         }) 
+      }))
+      .then(response => {
+        if (response.status === 201) {
+          return response.json();
+        } else {
+          setAlertErrMsg("投稿に失敗しました。もう一度お試しください。")
+          setAlertOpen(true);
+          throw new HttpError(response);
+        }
       })
       .then(() => setIsNeedGetLatestImageList({ state: "add", pref: selectedPref["id"], image: imgData }))
       // 店舗情報を再度取得し、再描画(S3から画像を取得する処理含む)
       .then(() => fetch(prefDataUrl))
-      .then(res => res.json())
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          setAlertErrMsg("データが取得できませんでした。ネットワークを確認して、もう一度お試しください。")
+          setAlertOpen(true);
+          throw new HttpError(response);
+        }
+      })
       .then(data => setPrefList(data))
       .catch(err => console.log("err :", err))
       .finally(() => {

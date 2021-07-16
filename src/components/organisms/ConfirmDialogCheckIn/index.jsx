@@ -40,11 +40,19 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+class HttpError extends Error {
+  constructor(response) {
+    super(`${response.status} for ${response.url}`);
+    this.name = 'HttpError';
+    this.response = response;
+  }
+}
+
 const ConfirmDialogCheckIn = withRouter((props) => {
   const [loading, setLoading] = useState(false);
   const [isSecretKey, setIsSecretKey] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const { setIsNeedGetLatestImageList } = useContext(DataContext);
+  const { setIsNeedGetLatestImageList, setAlertOpen, setAlertErrMsg } = useContext(DataContext);
   const inputSecretkeyRef = useRef();
   const classes = useStyles();
 
@@ -100,6 +108,9 @@ const ConfirmDialogCheckIn = withRouter((props) => {
     // 選択された画像をS3から削除
     const deleteUrlS3 = (process.env.NODE_ENV === "production") ? host + "/image" : "/image";
     
+    // 選択された投稿をDBから削除
+    const deleteUrlDB = (process.env.NODE_ENV === "production") ? `${host}/posts/${props.postData.id}` : `/posts/${props.postData.id}`;
+
     setLoading(true);
     await fetch(deleteUrlS3, {
       method: 'DELETE',
@@ -109,20 +120,29 @@ const ConfirmDialogCheckIn = withRouter((props) => {
         "imgData": props.postData.image
       }) 
     })
-    .then(res => res.json())
+    .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        setAlertErrMsg("削除に失敗しました。もう一度お試しください。")
+        setAlertOpen(true);
+        throw new HttpError(response);
+      }
+    })
     .then(() => setIsNeedGetLatestImageList({ state: "del", pref: props.postData.pref.id, image: "" }))
-    .catch(err => console.log("Error :", err))
-    .finally(() => setLoading(false));
-
-    // 選択された投稿をDBから削除
-    const deleteUrlDB = (process.env.NODE_ENV === "production") ? `${host}/posts/${props.postData.id}` : `/posts/${props.postData.id}`;
-    
-    setLoading(true);
-    await fetch(deleteUrlDB, {
+    .then(() => fetch(deleteUrlDB, {
       method: 'DELETE',
       mode: 'cors',
     })
-    .then(res => res.json())
+    .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        setAlertErrMsg("削除に失敗しました。もう一度お試しください。")
+        setAlertOpen(true);
+        throw new HttpError(response);
+      }
+    }))
     .catch(err => console.log("Error :", err))
     .finally(() => {
       setLoading(false)
