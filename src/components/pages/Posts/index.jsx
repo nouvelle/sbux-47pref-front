@@ -84,7 +84,7 @@ const useStyles = makeStyles(() => ({
 
 const Posts = () => {
   const [postData, setPostData] = useState([]);
-  const [imgFromS3, setImgFromS3] = useState([])
+  const [imgFromS3, setImgFromS3] = useState({})
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
@@ -111,7 +111,7 @@ const Posts = () => {
       setLoading(false)
   
       const getImgUrl = "/image";
-      let newImg = [];
+      let newImgObj = {};
 
       // 画像リストにある画像を取得
       if(postInfo.length > 0) {
@@ -123,8 +123,8 @@ const Posts = () => {
               .then(res => res.json())
               // eslint-disable-next-line no-loop-func
               .then(img => {
-                newImg = [...newImg, img.data]
-                setImgFromS3([...imgFromS3, ...newImg])
+                newImgObj = { ...imgFromS3, ...newImgObj, [post.id] : { img: img.data } };
+                setImgFromS3(newImgObj)
               })
               .catch(err => console.log(err));
           }
@@ -152,19 +152,21 @@ const Posts = () => {
             ? postData.map((post, id) => {
               return (<Card key={id} className={classes.root}>
                 <CardActionArea>
-                  {imgFromS3 && imgFromS3[id]
-                    ? (<Link to={`/posts/${post.id}`}>
-                        <CardMedia
-                          className={classes.media}
-                          image={`data:img/jpg;base64,${imgFromS3[id]}`}
-                          title={post["image"]}
-                        />
-                      </Link>)
+                  {imgFromS3 && imgFromS3[post.id] 
+                    ? imgFromS3[post.id]["img"]
+                      ? (<Link to={`/posts/${post.id}`}>
+                          <CardMedia
+                            className={classes.media}
+                            image={`data:img/jpg;base64,${imgFromS3[post.id]["img"]}`}
+                            title={post["image"]}
+                          />
+                        </Link>)
+                      : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
                     : imgLoading
                       ? <div className={classes.progressWrap}>
                           <CircularProgress className={classes.progress} color="secondary" />
                         </div>
-                      : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
+                      : <></>
                   }
                 </CardActionArea>
                 <CardContent>
@@ -194,7 +196,7 @@ const Posts = () => {
         open={open}
         setOpen={setOpen}
         setPostData={setPostData}
-        setImgFromS3={setImgFromS3}
+        // setImgFromS3={setImgFromS3}
         setHasMore={setHasMore}
         setOffset={setOffset}
       />
