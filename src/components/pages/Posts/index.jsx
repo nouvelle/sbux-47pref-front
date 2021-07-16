@@ -40,6 +40,14 @@ const useStyles = makeStyles(() => ({
   media: {
     height: 300,
   },
+  progressWrap: {
+    height: 150,
+  },
+  progress: {
+    position: "absolute",
+    top: "40%",
+    left: "40%",
+  },
   norFound: {
     height: 300,
     background: theme.palette.primary.main,
@@ -79,6 +87,7 @@ const Posts = () => {
   const [imgFromS3, setImgFromS3] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const classes = useStyles();
@@ -88,13 +97,13 @@ const Posts = () => {
     if (hasMore) {
       const host = config[process.env.NODE_ENV].host
       const url = (process.env.NODE_ENV === "production") ? host + "/posts" : "/posts";
-      let info = [];
+      let postInfo = [];
   
       setLoading(true)
       const posts = await fetch(`${url}?offset=${offset}`)
         .then(res => res.json())
         .then(data => data);
-      info = posts.data;
+      postInfo = posts.data;
       
       setPostData([...postData, ...posts.data]);
       setHasMore(posts.has_more);
@@ -102,23 +111,24 @@ const Posts = () => {
       setLoading(false)
   
       const getImgUrl = "/image";
+      let newImg = [];
+
       // 画像リストにある画像を取得
-      if(info.length > 0) {
-        setLoading(true)
-        const base64Arr = await Promise.all(
-          info.map((data) => {
-            if(data.image) {
-              const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${data.image}` : `${getImgUrl}/${data.image}`;
-              return fetch(url)
-                .then(res => res.json())
-                .then(img => img.data)
-                .catch(err => console.log(err))
-            } else {
-              return "";
-            }
-          })
-        ).finally(() => setLoading(false));
-        setImgFromS3([...imgFromS3, ...base64Arr]);
+      if(postInfo.length > 0) {
+        setImgLoading(true)
+        for (const post of postInfo) {
+          if(post.image) {
+            const url = (process.env.NODE_ENV === "production") ? `${host}${getImgUrl}/${post.image}` : `${getImgUrl}/${post.image}`;
+            fetch(url)
+              .then(res => res.json())
+              // eslint-disable-next-line no-loop-func
+              .then(img => {
+                newImg = [...newImg, img.data]
+                setImgFromS3([...imgFromS3, ...newImg])
+              })
+              .catch(err => console.log(err));
+          }
+        }
       }
     }
   }
@@ -150,8 +160,10 @@ const Posts = () => {
                           title={post["image"]}
                         />
                       </Link>)
-                    : loading
-                      ? <></>
+                    : imgLoading
+                      ? <div className={classes.progressWrap}>
+                          <CircularProgress className={classes.progress} color="secondary" />
+                        </div>
                       : <Typography className={classes.norFound}>画像が取得できませんでした</Typography>
                   }
                 </CardActionArea>
