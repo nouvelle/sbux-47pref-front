@@ -204,7 +204,8 @@ const InputDialogCheckIn = withRouter((props) => {
           "snshandle": twitter,
           "comments": inputText,
           "pref_id": selectedPref["id"],
-          "image": imgData
+          "image": imgData,
+          "drink": selectedPref.drink,
         }) 
       }))
       .then(response => {

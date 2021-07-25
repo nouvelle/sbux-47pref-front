@@ -169,7 +169,8 @@ const InputDialogPrefCheckIn = (props) => {
         "snshandle": twitter,
         "comments": inputText,
         "pref_id": props.selectedPref.id,
-        "image": imgData
+        "image": imgData,
+        "drink": props.selectedPref.drink,
       }) 
     }))
     .then(response => {
