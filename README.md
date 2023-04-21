@@ -21,7 +21,7 @@
 ```js
 const config = {
   production: {
-    host: "https://sbux-47pref.herokuapp.com",
+    host: "https://sbux-47pref-back.onrender.com",
   },
   development: {
     host: "http://localhost:5001",
